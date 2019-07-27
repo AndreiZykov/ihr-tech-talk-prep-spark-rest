@@ -9,7 +9,5 @@ class UserDao(id: EntityID<Int>) : IntEntity(id) {
     var username by UsersTable.username
     var password_hash by UsersTable.password_hash
     var jwt by UsersTable.jwt
-
     companion object : IntEntityClass<UserDao>(UsersTable)
-
 }
