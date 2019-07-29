@@ -15,9 +15,8 @@ object DB {
         }
     }
 
-    const val DB_URL = "jdbc:postgresql://localhost:5432/test_db"
-    const val DB_DRIVER = "org.postgresql.Driver"
-    const val USER_NAME = "user-name"
-    const val PASSWORD = "password"
-
+    private const val DB_URL = "jdbc:postgresql://localhost:5432/test_db"
+    private const val DB_DRIVER = "org.postgresql.Driver"
+    private const val USER_NAME = "user-name"
+    private const val PASSWORD = "password"
 }

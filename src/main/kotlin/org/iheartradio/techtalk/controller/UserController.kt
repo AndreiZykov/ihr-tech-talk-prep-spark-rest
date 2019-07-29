@@ -2,11 +2,13 @@ package org.iheartradio.techtalk.controller
 
 import com.amdelamar.jhash.Hash
 import com.amdelamar.jhash.algorithms.Type.BCRYPT
+import org.eclipse.jetty.http.HttpStatus
 import org.iheartradio.techtalk.domain.dao.UserDao
+import org.iheartradio.techtalk.domain.dao.toUser
 import org.iheartradio.techtalk.domain.entity.UsersTable
-import org.iheartradio.techtalk.ext.toJson
-import org.iheartradio.techtalk.ext.toUser
+
 import org.iheartradio.techtalk.shared.User
+import org.iheartradio.techtalk.shared.toJson
 import org.jetbrains.exposed.sql.transactions.transaction
 import spark.Route
 import java.util.*
@@ -20,7 +22,7 @@ object UserController {
             UserDao.all().map { it.toUser() }
         }
 
-        response.status(200)
+        response.status(HttpStatus.OK_200)
 
         return@Route users.toJson()
     }
@@ -35,7 +37,7 @@ object UserController {
             }
         }.toUser()
 
-        response.status(200)
+        response.status(HttpStatus.OK_200)
 
         return@Route newUser.toJson()
     }
@@ -51,7 +53,7 @@ object UserController {
 
         return@Route if (updatesUser != null) {
 
-            response.status(200)
+            response.status(HttpStatus.OK_200)
             updatesUser.toJson()
         } else {
             response.status(400)
@@ -65,7 +67,7 @@ object UserController {
         val user = User from request.body()
         transaction { UserDao.findById(user.id)?.delete() }
 
-        response.status(200)
+        response.status(HttpStatus.OK_200)
 
         return@Route """
                 {"response":"success"}
@@ -80,7 +82,7 @@ object UserController {
                 transaction {
                     localUser.jwt = UUID.randomUUID().toString()
                 }
-                response.status(200)
+                response.status(HttpStatus.OK_200)
                 localUser.toUser().toJson()
             } else {
                 response.status(400)
