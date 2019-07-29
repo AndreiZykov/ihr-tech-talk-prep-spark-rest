@@ -1,10 +1,12 @@
 package org.iheartradio.techtalk
 
+import org.iheartradio.techtalk.controller.PostController
 import org.iheartradio.techtalk.controller.UserController
 import org.iheartradio.techtalk.domain.DB
 import spark.Spark.*
 
 const val USER_PATH = "/user"
+const val POST_PATH = "/post"
 
 fun main() {
 
@@ -17,6 +19,12 @@ fun main() {
         post("/", UserController.newUser)
         patch("/", UserController.updateUser)
         delete("/", UserController.deleteUser)
+    }
+
+
+
+    path(POST_PATH) {
+        get("/{userId}", PostController.fetchPostsForUser)
     }
 
 }
