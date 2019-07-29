@@ -44,33 +44,3 @@ object CommentController {
         return@Route newComment.toJson()
     }
 }
-
-
-/*
-object CommentController {
-
-    val newComment = Route { request, response ->
-        val comment = Comment from request.body()
-
-        var commentDao: CommentDao? = null
-
-        val newUser = transaction {
-
-
-            commentDao =  CommentDao.new {
-                userId = comment.userId
-                postId = comment.postId
-                body = comment.body
-                date = DateTime()
-                likesCount = 0
-            }
-
-
-        }
-
-        response.status(200)
-
-        return@Route commentDao.toJson()
-    }
-}
- */
