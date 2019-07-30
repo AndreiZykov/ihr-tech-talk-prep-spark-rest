@@ -1,6 +1,65 @@
 package org.iheartradio.techtalk.controller
 
+import org.eclipse.jetty.http.HttpStatus
+import org.iheartradio.techtalk.domain.dao.PostDao
+import org.iheartradio.techtalk.domain.dao.UserDao
+import org.iheartradio.techtalk.domain.dao.toPost
+import org.iheartradio.techtalk.shared.toJson
+import org.jetbrains.exposed.sql.Transaction
+import org.jetbrains.exposed.sql.transactions.transaction
+import spark.Route
+
+
+
 object PostController {
+
+    /**
+     * If the endpoint url contains ?userId={id} then this will fetch
+     * all posts for a specific user
+     *
+     * If there is no query parameter for ?userId={id} then it will return
+     * all posts across all users
+     */
+    val fetchAllPosts = Route { request, response ->
+        val userId: Long? = request.queryMap("userId").longValue()
+        val posts = transaction {
+            val allPosts = PostDao.all()
+            if (userId == null) {
+                allPosts.map { it.toPost() }
+            } else {
+                allPosts.filter { it.user.id.value == userId }.map { it.toPost() }
+            }
+        }
+
+        response.status(HttpStatus.OK_200)
+        return@Route posts.toJson()
+    }
+
+
+    /**
+     * Must pass query parameter for ?userId={id} to create post
+     * for a specific user.
+     */
+    val newPost = Route { request, response ->
+
+        val userId = request.queryMap("userId").longValue()
+            ?: throw Exception("Query @param [userId] not found in the query map! Please pass over ?userId={id} and try again!")
+
+        val newPost = transaction {
+
+            val user = UserDao.findById(userId) ?: throw Exception("INVALID USER_ID. No User found with id= $userId")
+
+            PostDao.new {
+                body = "VERY NICE!! BEST POST EVER!"
+                this.user = user
+            }.toPost()
+        }
+
+        response.status(HttpStatus.OK_200)
+
+        return@Route newPost.toJson()
+    }
+
 
 //    val fetchPostsForUser = Route { request, response ->
 //        val posts = transaction {
@@ -56,44 +115,4 @@ object PostController {
 //    }
 
 
-//    val newUser = Route { request, response ->
-//        val post = Post from request.body()
-//
-//        /*
-//            var user by UserDao referencedOn PostsTable.user
-//    var body by PostsTable.body
-//    var date by PostsTable.date
-//    var likesCount by PostsTable.likesCount
-//    var commentsCount by PostsTable.commentsCount
-//         */
-//
-//        val newUser = transaction {
-//            PostDao.new {
-//                body = ""
-//            }
-//        }.toUser()
-//
-//        response.status(HttpStatus.OK_200)
-//
-//        return@Route newUser.toJson()
-//    }
-
-
-    /*
-    val newUser = Route { request, response ->
-        val user = User from request.body()
-
-        val newUser = transaction {
-            UserDao.new {
-                username = user.username
-                password_hash = hasher(user.password).create()
-            }
-        }.toUser()
-
-        response.status(HttpStatus.OK_200)
-
-        return@Route newUser.toJson()
-    }
-
-     */
 }

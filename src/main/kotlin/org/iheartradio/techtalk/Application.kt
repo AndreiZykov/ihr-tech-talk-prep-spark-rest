@@ -1,5 +1,6 @@
 package org.iheartradio.techtalk
 
+import org.iheartradio.techtalk.controller.PostController
 import org.iheartradio.techtalk.controller.UserController
 import org.iheartradio.techtalk.domain.DB
 import spark.Spark.*
@@ -23,9 +24,18 @@ fun main() {
     }
 
 
-//    path(POST_PATH) {
-//        get("/{userId}", PostController.fetchPostsForUser)
-//    }
+
+    path(POST_PATH) {
+        /**
+         * Maybe change this to   [localhost:4567/user/:id/post]
+         */
+        get("", PostController.fetchAllPosts)
+
+        /**
+         * Maybe change this to   [localhost:4567/post]
+         */
+        post("", PostController.newPost)
+    }
 
 }
 
