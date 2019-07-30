@@ -35,6 +35,14 @@ object CommentController {
             PostDao.findById(comment.postId)
                 ?.apply { commentsCount = totalComments }
 
+//            PostsTable.update ({
+//                PostsTable.id eq request.params("userId").toLong()
+//            }) {
+//                with(SqlExpressionBuilder) {
+//                    it.update(PostsTable.commentsCount, totalComments)
+//                }
+//            }
+
             //Map CommentDao to Comment data class and then set response status to OK_200 if entire transaction succeeds
             commentDao.toComment().also {
                 response.status(HttpStatus.OK_200)
