@@ -2,13 +2,15 @@ package org.iheartradio.techtalk.controller
 
 import com.amdelamar.jhash.Hash
 import com.amdelamar.jhash.algorithms.Type.BCRYPT
+import com.google.gson.JsonObject
 import org.eclipse.jetty.http.HttpStatus
 import org.iheartradio.techtalk.domain.dao.UserDao
 import org.iheartradio.techtalk.domain.dao.toUser
 import org.iheartradio.techtalk.domain.entity.UsersTable
-
 import org.iheartradio.techtalk.shared.User
 import org.iheartradio.techtalk.shared.toJson
+import org.jetbrains.exposed.dao.Entity
+import org.jetbrains.exposed.sql.SizedIterable
 import org.jetbrains.exposed.sql.transactions.transaction
 import spark.Route
 import java.util.*
@@ -74,6 +76,18 @@ object UserController {
             """.trimIndent()
     }
 
+
+    val deleteAllUsers = Route { request, response ->
+        transaction {
+            UserDao.all().deleteAll()
+        }
+        response.status(HttpStatus.OK_200)
+
+        return@Route JsonObject().apply {
+            addProperty("response",true)
+        }
+    }
+
     val signIn = Route { request, response ->
         val user = User from request.body()
         val localUser = transaction { UserDao.find { UsersTable.username.eq(user.username) }.firstOrNull() }
@@ -100,7 +114,13 @@ object UserController {
 
     }
 
+
+
     private fun hasher(password: String) = Hash.password(password.toCharArray())
         .saltLength(20).algorithm(BCRYPT)
 
+}
+
+fun SizedIterable<Entity<*>>.deleteAll() {
+    forEach { it.delete() }
 }

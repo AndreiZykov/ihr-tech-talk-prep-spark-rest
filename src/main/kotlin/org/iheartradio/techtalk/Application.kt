@@ -1,6 +1,5 @@
 package org.iheartradio.techtalk
 
-import org.iheartradio.techtalk.controller.PostController
 import org.iheartradio.techtalk.controller.UserController
 import org.iheartradio.techtalk.domain.DB
 import spark.Spark.*
@@ -19,13 +18,14 @@ fun main() {
         post("/", UserController.newUser)
         patch("/", UserController.updateUser)
         delete("/", UserController.deleteUser)
+        //convenience service to delete all users (for dev mess-ups with references)
+        delete("/all", UserController.deleteAllUsers)
     }
 
 
-
-    path(POST_PATH) {
-        get("/{userId}", PostController.fetchPostsForUser)
-    }
+//    path(POST_PATH) {
+//        get("/{userId}", PostController.fetchPostsForUser)
+//    }
 
 }
 
