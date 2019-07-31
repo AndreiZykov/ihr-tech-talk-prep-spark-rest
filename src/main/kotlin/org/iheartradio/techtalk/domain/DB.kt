@@ -14,6 +14,8 @@ object DB {
         val dbUserName = System.getenv("TT_DB_USER_NAME")
         val dbPassword = System.getenv("TT_DB_PASSWORD")
 
+        println("db: $dbUrl un: $dbUserName pw: $dbPassword")
+
         Database.connect(url = dbUrl, driver = DB_DRIVER, user = dbUserName, password = dbPassword)
         transaction {
 //            SchemaUtils.drop(UsersTable, PostsTable)
