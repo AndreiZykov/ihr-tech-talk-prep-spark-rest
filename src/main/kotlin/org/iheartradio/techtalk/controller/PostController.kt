@@ -18,11 +18,11 @@ object PostController {
         val userId = post.userId
         val newPost = transaction {
 
-            val user = UserDao.findById(userId)
+            val localUser = UserDao.findById(userId)
                 ?: throw Exception("Invalid {userId}. No User found with id= $userId")
 
             PostDao.new {
-                this.user = user
+                user = localUser
                 body = post.body
                 date = DateTime(post.date)
                 likesCount = 0
