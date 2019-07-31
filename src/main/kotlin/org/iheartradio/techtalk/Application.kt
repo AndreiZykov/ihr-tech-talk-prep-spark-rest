@@ -10,6 +10,8 @@ const val POST_PATH = "/post"
 
 fun main(args: Array<String>) {
 
+    port(herokuPort())
+
     DB.init()
 
     get("/") { req, res ->
@@ -42,5 +44,13 @@ fun main(args: Array<String>) {
         post("", PostController.newPost)
     }
 
+}
+
+fun herokuPort(): Int {
+    val processBuilder = ProcessBuilder()
+    if (processBuilder.environment()["PORT"] != null) {
+        return Integer.parseInt(processBuilder.environment()["PORT"])
+    }
+    return 4567
 }
 
