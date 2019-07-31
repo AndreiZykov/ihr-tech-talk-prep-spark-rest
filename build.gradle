@@ -32,12 +32,12 @@ jar {
     version = '1.0'
     manifest {
         attributes(
-                'Main-Class': 'org.iheartradio.techtalk.Application.kt'
+                'Main-Class': 'org.iheartradio.techtalk.ApplicationKt'
         )
     }
 }
 
-mainClassName = 'org.iheartradio.techtalk.Application.kt'
+mainClassName = 'org.iheartradio.techtalk.ApplicationKt'
 
 dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
