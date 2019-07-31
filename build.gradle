@@ -40,6 +40,7 @@ compileTestKotlin {
 }
 
 task stage(dependsOn: ['build', 'clean'])
+
 build.mustRunAfter clean
 
 task copyToLib(type: Copy) {

@@ -12,6 +12,11 @@ fun main() {
 
     DB.init()
 
+    get("/") { req, res ->
+        res.status(200)
+        "Hello World"
+    }
+
     post("/signIn", UserController.signIn)
 
     path(USER_PATH) {
