@@ -35,6 +35,8 @@ jar {
     }
 }
 
+mainClassName = 'org.iheartradio.techtalk.ApplicationKt'
+
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
     implementation "org.jetbrains.kotlin:kotlin-runtime:1.2.71"
