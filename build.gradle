@@ -35,10 +35,10 @@ jar {
     }
 }
 
-mainClassName = 'org.iheartradio.techtalk.ApplicationKt'
-
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
+    implementation "org.jetbrains.kotlin:kotlin-runtime:1.2.71"
+
     implementation "com.sparkjava:spark-core:2.8.0"
     implementation "com.sparkjava:spark-kotlin:1.0.0-alpha"
     implementation "org.slf4j:slf4j-api:1.7.25"
@@ -67,3 +67,9 @@ task stage {
     dependsOn installDist
 }
 
+task copyToLib(type: Copy) {
+    into "$buildDir/libs"
+    from(configurations.compile)
+}
+
+stage.dependsOn(copyToLib)
