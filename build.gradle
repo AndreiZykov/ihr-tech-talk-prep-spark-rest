@@ -1,7 +1,7 @@
 plugins {
     id 'java'
     id 'org.jetbrains.kotlin.jvm' version '1.3.21'
-    id 'kotlin'
+    id 'application'
 }
 
 group 'org.iheartradio.techtalk'
@@ -14,12 +14,7 @@ repositories {
     jcenter()
 }
 
-jar {
-    manifest {
-        attributes 'Main-Class': 'org.iheartradio.techtalk.ApplicationKt'
-    }
-    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
-}
+mainClassName = 'org.iheartradio.techtalk.ApplicationKt'
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
@@ -47,14 +42,7 @@ compileTestKotlin {
     kotlinOptions.jvmTarget = "1.8"
 }
 
-task stage(dependsOn: ['build', 'clean'])
-
-build.mustRunAfter clean
-
-task copyToLib(type: Copy) {
-    into "$buildDir/libs"
-    from(configurations.compile)
+task stage {
+    dependsOn installDist
 }
-
-stage.dependsOn(copyToLib)
 
