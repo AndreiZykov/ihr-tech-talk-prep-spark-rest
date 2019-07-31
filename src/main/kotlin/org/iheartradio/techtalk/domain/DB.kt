@@ -9,15 +9,17 @@ import org.jetbrains.exposed.sql.transactions.transaction
 object DB {
 
     fun init() {
-        Database.connect(url = DB_URL, driver = DB_DRIVER, user = USER_NAME, password = PASSWORD)
+
+        val dbUrl = System.getenv("TT_DB_URL")
+        val dbUserName = System.getenv("TT_DB_USER_NAME")
+        val dbPassword = System.getenv("TT_DB_PASSWORD")
+
+        Database.connect(url = dbUrl, driver = DB_DRIVER, user = dbUserName, password = dbPassword)
         transaction {
 //            SchemaUtils.drop(UsersTable, PostsTable)
             SchemaUtils.createMissingTablesAndColumns(UsersTable, PostsTable)
         }
     }
 
-    private const val DB_URL = "jdbc:postgresql://localhost:5432/test_db"
     private const val DB_DRIVER = "org.postgresql.Driver"
-    private const val USER_NAME = "Anthony"
-    private const val PASSWORD = "password"
 }
