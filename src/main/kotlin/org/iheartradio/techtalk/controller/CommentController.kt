@@ -4,8 +4,8 @@ import org.eclipse.jetty.http.HttpStatus
 import org.iheartradio.techtalk.domain.dao.CommentDao
 import org.iheartradio.techtalk.domain.dao.PostDao
 import org.iheartradio.techtalk.domain.dao.toComment
-import org.iheartradio.techtalk.shared.Comment
-import org.iheartradio.techtalk.shared.toJson
+import org.iheartradio.techtalk.model.Comment
+import org.iheartradio.techtalk.model.toJson
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.joda.time.DateTime
 import spark.Route

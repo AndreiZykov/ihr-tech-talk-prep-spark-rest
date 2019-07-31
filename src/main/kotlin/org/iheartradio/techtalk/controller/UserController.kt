@@ -9,8 +9,8 @@ import org.iheartradio.techtalk.domain.dao.UserDao
 import org.iheartradio.techtalk.domain.dao.toPost
 import org.iheartradio.techtalk.domain.dao.toUser
 import org.iheartradio.techtalk.domain.entity.UsersTable
-import org.iheartradio.techtalk.shared.User
-import org.iheartradio.techtalk.shared.toJson
+import org.iheartradio.techtalk.model.User
+import org.iheartradio.techtalk.model.toJson
 import org.jetbrains.exposed.dao.Entity
 import org.jetbrains.exposed.sql.SizedIterable
 import org.jetbrains.exposed.sql.transactions.transaction

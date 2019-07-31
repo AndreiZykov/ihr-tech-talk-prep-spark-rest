@@ -1,9 +1,7 @@
 package org.iheartradio.techtalk.domain.dao
 
 import org.iheartradio.techtalk.domain.entity.CommentsTable
-import org.iheartradio.techtalk.domain.entity.PostsTable
-import org.iheartradio.techtalk.shared.Comment
-import org.iheartradio.techtalk.shared.Post
+import org.iheartradio.techtalk.model.Comment
 import org.jetbrains.exposed.dao.EntityID
 import org.jetbrains.exposed.dao.LongEntity
 import org.jetbrains.exposed.dao.LongEntityClass

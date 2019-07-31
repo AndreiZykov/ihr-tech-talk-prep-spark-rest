@@ -59,7 +59,6 @@ dependencies {
     compile 'org.jetbrains.exposed:exposed:0.16.2'
 
     compile "org.postgresql:postgresql:42.2.6"
-    "org.postgresql:postgresql:9.4-1201-jdbc41"
 
     compile 'com.amdelamar:jhash:2.1.0'
 

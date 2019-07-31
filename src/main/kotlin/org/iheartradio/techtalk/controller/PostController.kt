@@ -4,9 +4,10 @@ import org.eclipse.jetty.http.HttpStatus
 import org.iheartradio.techtalk.domain.dao.PostDao
 import org.iheartradio.techtalk.domain.dao.UserDao
 import org.iheartradio.techtalk.domain.dao.toPost
-import org.iheartradio.techtalk.shared.Post
-import org.iheartradio.techtalk.shared.toJson
+import org.iheartradio.techtalk.model.Post
+import org.iheartradio.techtalk.model.toJson
 import org.jetbrains.exposed.sql.transactions.transaction
+import org.joda.time.DateTime
 import spark.Route
 
 
@@ -23,7 +24,7 @@ object PostController {
             PostDao.new {
                 this.user = user
                 body = post.body
-                date = post.date
+                date = DateTime(post.date)
                 likesCount = 0
                 commentsCount = 0
             }.toPost()

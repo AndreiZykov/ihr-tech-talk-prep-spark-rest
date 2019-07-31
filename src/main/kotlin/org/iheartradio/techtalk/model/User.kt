@@ -1,4 +1,4 @@
-package org.iheartradio.techtalk.shared
+package org.iheartradio.techtalk.model
 
 import com.google.gson.Gson
 

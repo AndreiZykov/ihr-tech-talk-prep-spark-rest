@@ -1,7 +1,7 @@
 package org.iheartradio.techtalk.domain.dao
 
 import org.iheartradio.techtalk.domain.entity.PostsTable
-import org.iheartradio.techtalk.shared.Post
+import org.iheartradio.techtalk.model.Post
 import org.jetbrains.exposed.dao.EntityID
 import org.jetbrains.exposed.dao.LongEntity
 import org.jetbrains.exposed.dao.LongEntityClass
@@ -21,7 +21,7 @@ fun PostDao.toPost() = Post(
     id = id.value,
     userId = user.id.value,
     body = body,
-    date = date,
+    date = date.millis,
     likesCount = likesCount,
     commentsCount = commentsCount
 )

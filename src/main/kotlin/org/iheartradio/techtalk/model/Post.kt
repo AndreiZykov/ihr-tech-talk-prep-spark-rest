@@ -1,4 +1,4 @@
-package org.iheartradio.techtalk.shared
+package org.iheartradio.techtalk.model
 
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
@@ -7,7 +7,7 @@ import org.joda.time.DateTime
 data class Post(val id: Long = 0,
                 val userId: Long,
                 val body: String,
-                val date: DateTime,
+                val date: Long,
                 val likesCount: Int,
                 val commentsCount: Int) {
     companion object {
