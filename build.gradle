@@ -35,13 +35,14 @@ jar {
         attributes(
                 'Main-Class': 'org.iheartradio.techtalk.ApplicationKt'
         )
-        from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
     }
 }
 
 mainClassName = 'org.iheartradio.techtalk.ApplicationKt'
 
 dependencies {
+    fileTree "libs/gradle-plugins/kotlin"
+
     compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
 
     compile "com.sparkjava:spark-core:2.8.0"
