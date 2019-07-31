@@ -1,5 +1,6 @@
 package org.iheartradio.techtalk.domain
 
+import org.iheartradio.techtalk.domain.entity.CommentsTable
 import org.iheartradio.techtalk.domain.entity.PostsTable
 import org.iheartradio.techtalk.domain.entity.UsersTable
 import org.jetbrains.exposed.sql.Database
@@ -18,7 +19,7 @@ object DB {
 
         Database.connect(url = dbUrl, driver = DB_DRIVER, user = dbUserName, password = dbPassword)
         transaction {
-            SchemaUtils.createMissingTablesAndColumns(UsersTable, PostsTable)
+            SchemaUtils.createMissingTablesAndColumns(UsersTable, PostsTable, CommentsTable)
         }
     }
 

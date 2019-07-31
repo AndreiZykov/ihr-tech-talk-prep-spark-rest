@@ -1,5 +1,7 @@
 package org.iheartradio.techtalk.domain.dao
 
+import org.iheartradio.techtalk.domain.dao.UserDao.Companion.referrersOn
+import org.iheartradio.techtalk.domain.entity.CommentsTable
 import org.iheartradio.techtalk.domain.entity.PostsTable
 import org.iheartradio.techtalk.model.Post
 import org.jetbrains.exposed.dao.EntityID
@@ -13,6 +15,7 @@ class PostDao(id: EntityID<Long>) : LongEntity(id) {
     var date by PostsTable.date
     var likesCount by PostsTable.likesCount
     var commentsCount by PostsTable.commentsCount
+    val comments by CommentDao referrersOn CommentsTable.post
 
     companion object : LongEntityClass<PostDao>(PostsTable)
 }

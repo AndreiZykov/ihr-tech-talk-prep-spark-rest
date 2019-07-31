@@ -7,9 +7,9 @@ import org.joda.time.DateTime
 data class Post(val id: Long = 0,
                 val userId: Long,
                 val body: String,
-                val date: Long,
-                val likesCount: Int,
-                val commentsCount: Int) {
+                val date: Long = DateTime.now().millis,
+                val likesCount: Int = 0,
+                val commentsCount: Int = 0) {
     companion object {
         infix fun from(jsonString: String): Post = Gson().fromJson(jsonString, Post::class.java)
     }

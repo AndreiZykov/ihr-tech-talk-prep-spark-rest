@@ -1,9 +1,12 @@
 package org.iheartradio.techtalk
 
 import org.eclipse.jetty.http.HttpStatus
+import org.iheartradio.techtalk.controller.CommentController
 import org.iheartradio.techtalk.controller.PostController
 import org.iheartradio.techtalk.controller.UserController
 import org.iheartradio.techtalk.domain.DB
+import org.iheartradio.techtalk.model.Comment
+import org.iheartradio.techtalk.model.toJson
 import spark.Route
 import spark.Spark.*
 
@@ -11,9 +14,18 @@ const val DEFAULT_PORT = 4567
 const val KEY_POST_ENV_VAR = "PORT"
 const val USER_PATH = "/user"
 const val POST_PATH = "/post"
+const val COMMENT_PATH = "/comment"
 
 
 fun main(args: Array<String>) {
+
+    println(
+        Comment(
+            userId = 3,
+            postId = 20,
+            body = "THIS POST SUCKS!"
+        ).toJson()
+    )
 
     port(herokuPort)
 
@@ -38,6 +50,11 @@ fun main(args: Array<String>) {
 
     path(POST_PATH) {
         post(PostController.insertInto)
+        post("/:id/comment",PostController.insertCommentInto)
+    }
+
+    path(COMMENT_PATH) {
+
     }
 
 }

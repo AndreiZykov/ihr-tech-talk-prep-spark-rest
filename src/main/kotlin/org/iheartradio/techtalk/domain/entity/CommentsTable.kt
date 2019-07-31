@@ -8,4 +8,6 @@ object CommentsTable : LongIdTable() {
     val body = varchar(name = "BODY", length = POST_MAX_CHARS)
     val date = datetime(name = "DATE")
     val likesCount = integer("LIKES_COUNT")
+    val dislikesCount = integer("DISLIKES_COUNT")
+    val post = reference("POST", PostsTable)
 }

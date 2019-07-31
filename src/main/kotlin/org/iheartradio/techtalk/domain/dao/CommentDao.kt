@@ -1,6 +1,7 @@
 package org.iheartradio.techtalk.domain.dao
 
 import org.iheartradio.techtalk.domain.entity.CommentsTable
+import org.iheartradio.techtalk.domain.entity.PostsTable
 import org.iheartradio.techtalk.model.Comment
 import org.jetbrains.exposed.dao.EntityID
 import org.jetbrains.exposed.dao.LongEntity
@@ -12,7 +13,9 @@ class CommentDao(id: EntityID<Long>) : LongEntity(id) {
     var body by CommentsTable.body
     var date by CommentsTable.date
     var likesCount by CommentsTable.likesCount
-
+    var dislikesCount by CommentsTable.dislikesCount
+    var post by PostDao referencedOn CommentsTable.post
+        //var user by UserDao referencedOn PostsTable.user
     companion object : LongEntityClass<CommentDao>(CommentsTable)
 }
 
@@ -21,7 +24,8 @@ fun CommentDao.toComment() = Comment(
     userId = userId,
     postId = postId,
     body = body,
-    date = date,
-    likesCount = likesCount
+    date = date.millis,
+    likesCount = likesCount,
+    dislikesCount = dislikesCount
 )
 

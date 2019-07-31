@@ -1,5 +1,6 @@
 package org.iheartradio.techtalk.domain.entity
 
+import org.iheartradio.techtalk.domain.entity.UsersTable.nullable
 import org.jetbrains.exposed.dao.LongIdTable
 import org.joda.time.DateTime
 
@@ -12,4 +13,5 @@ object PostsTable : LongIdTable() {
     val date = datetime(name = "DATE").default(DateTime())
     val likesCount = integer("LIKES_COUNT").default(0)
     val commentsCount = integer("COMMENTS_COUNT").default(0)
+    val comments = reference("COMMENTS", CommentsTable).nullable()
 }
