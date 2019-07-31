@@ -70,9 +70,7 @@ object UserController {
     val delete = Route { request, response ->
         val user = User from request.body()
         transaction { UserDao.findById(user.id)?.delete() }
-
         response.status(HttpStatus.OK_200)
-
         return@Route """
                 {"response":"success"}
             """.trimIndent()
@@ -86,7 +84,7 @@ object UserController {
         response.status(HttpStatus.OK_200)
 
         return@Route JsonObject().apply {
-            addProperty("response",true)
+            addProperty("response", true)
         }
     }
 
@@ -94,7 +92,7 @@ object UserController {
         val user = User from request.body()
         val localUser = transaction { UserDao.find { UsersTable.username.eq(user.username) }.firstOrNull() }
         if (localUser != null) {
-            if (user.password.isNotEmpty() && hasher(user.password).verify(localUser.password_hash)) {
+            if (verifyPassword(user.password, localUser.password_hash)) {
                 transaction {
                     localUser.jwt = UUID.randomUUID().toString()
                 }
@@ -113,7 +111,6 @@ object UserController {
                 {"error":"user not found"}
             """.trimIndent()
         }
-
     }
 
 
@@ -132,12 +129,25 @@ object UserController {
         return@Route posts.toJson()
     }
 
+    private val hasher: (String) -> Hash = { password ->
+        Hash.password(password.toCharArray())
+            .saltLength(20)
+            .algorithm(BCRYPT)
+    }
 
-    private fun hasher(password: String) = Hash.password(password.toCharArray())
-        .saltLength(20).algorithm(BCRYPT)
+    private val verifyPassword: (String, String) -> Boolean = { password, passwordHash ->
+        password.isNotEmpty() && hasher(password).verify(passwordHash)
+    }
 
 }
 
 fun SizedIterable<Entity<*>>.deleteAll() {
     forEach { it.delete() }
 }
+
+
+inline class Password(val value: String)
+fun Password.toCharArray() = value.toCharArray()
+fun Password.isNotEmpty() = value.isNotEmpty()
+fun Hash.verify(password: HashedPassword) = verify(password.value)
+inline class HashedPassword(val value: String)
