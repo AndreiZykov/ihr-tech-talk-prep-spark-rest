@@ -31,11 +31,6 @@ repositories {
 jar {
     baseName = 'techtalk'
     version = '1.0'
-    manifest {
-        attributes(
-                'Main-Class': 'org.iheartradio.techtalk.ApplicationKt'
-        )
-    }
 }
 
 mainClassName = 'org.iheartradio.techtalk.ApplicationKt'
