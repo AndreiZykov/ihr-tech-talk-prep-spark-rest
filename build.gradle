@@ -19,7 +19,7 @@ jar {
     version = '1.0'
     manifest {
         attributes(
-                'Main-Class': 'org.iheartradio.techtalk.Application'
+                'Main-Class': 'org.iheartradio.techtalk.ApplicationKt'
         )
     }
 }
