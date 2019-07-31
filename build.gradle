@@ -40,21 +40,21 @@ jar {
 mainClassName = 'org.iheartradio.techtalk.Application.kt'
 
 dependencies {
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
 
-    implementation "com.sparkjava:spark-core:2.8.0"
-    implementation "com.sparkjava:spark-kotlin:1.0.0-alpha"
+    compile "com.sparkjava:spark-core:2.8.0"
+    compile "com.sparkjava:spark-kotlin:1.0.0-alpha"
 
-    implementation "org.slf4j:slf4j-api:1.7.25"
-    implementation "org.slf4j:slf4j-simple:1.7.26"
+    compile "org.slf4j:slf4j-api:1.7.25"
+    compile "org.slf4j:slf4j-simple:1.7.26"
 
-    implementation 'com.google.code.gson:gson:2.8.5'
+    compile 'com.google.code.gson:gson:2.8.5'
 
-    implementation 'org.jetbrains.exposed:exposed:0.16.2'
-    
-    implementation "org.postgresql:postgresql:42.2.6"
+    compile 'org.jetbrains.exposed:exposed:0.16.2'
 
-    implementation 'com.amdelamar:jhash:2.1.0'
+    compile "org.postgresql:postgresql:42.2.6"
+
+    compile 'com.amdelamar:jhash:2.1.0'
 
     testImplementation "junit:junit:4.12"
     testImplementation "org.slf4j:slf4j-simple:1.6.1"
@@ -73,7 +73,7 @@ task stage {
 
 task copyToLib(type: Copy) {
     into "$buildDir/libs"
-    from(configurations.implementation)
+    from(configurations.compile)
 }
 
 stage.dependsOn(copyToLib)
