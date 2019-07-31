@@ -8,7 +8,7 @@ import spark.Spark.*
 const val USER_PATH = "/user"
 const val POST_PATH = "/post"
 
-fun main() {
+fun main(args: Array<String>) {
 
     DB.init()
 
