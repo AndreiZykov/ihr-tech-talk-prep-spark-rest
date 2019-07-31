@@ -31,6 +31,12 @@ repositories {
 jar {
     baseName = 'techtalk'
     version = '1.0'
+    manifest {
+        attributes(
+                'Main-Class': 'org.iheartradio.techtalk.ApplicationKt'
+        )
+        from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+    }
 }
 
 mainClassName = 'org.iheartradio.techtalk.ApplicationKt'
@@ -40,6 +46,7 @@ dependencies {
 
     compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
 
+    compile "org.jetbrains.kotlin:kotlin-runtime:1.2.71"
     compile "com.sparkjava:spark-core:2.8.0"
     compile "com.sparkjava:spark-kotlin:1.0.0-alpha"
 
