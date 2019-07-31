@@ -4,54 +4,28 @@ import org.eclipse.jetty.http.HttpStatus
 import org.iheartradio.techtalk.domain.dao.PostDao
 import org.iheartradio.techtalk.domain.dao.UserDao
 import org.iheartradio.techtalk.domain.dao.toPost
+import org.iheartradio.techtalk.shared.Post
 import org.iheartradio.techtalk.shared.toJson
-import org.jetbrains.exposed.sql.Transaction
 import org.jetbrains.exposed.sql.transactions.transaction
 import spark.Route
 
 
-
 object PostController {
 
-    /**
-     * If the endpoint url contains ?userId={id} then this will fetch
-     * all posts for a specific user
-     *
-     * If there is no query parameter for ?userId={id} then it will return
-     * all posts across all users
-     */
-    val fetchAllPosts = Route { request, response ->
-        val userId: Long? = request.queryMap("userId").longValue()
-        val posts = transaction {
-            val allPosts = PostDao.all()
-            if (userId == null) {
-                allPosts.map { it.toPost() }
-            } else {
-                allPosts.filter { it.user.id.value == userId }.map { it.toPost() }
-            }
-        }
-
-        response.status(HttpStatus.OK_200)
-        return@Route posts.toJson()
-    }
-
-
-    /**
-     * Must pass query parameter for ?userId={id} to create post
-     * for a specific user.
-     */
-    val newPost = Route { request, response ->
-
-        val userId = request.queryMap("userId").longValue()
-            ?: throw Exception("Query @param [userId] not found in the query map! Please pass over ?userId={id} and try again!")
-
+    val insertInto = Route { request, response ->
+        val post = Post from request.body()
+        val userId = post.userId
         val newPost = transaction {
 
-            val user = UserDao.findById(userId) ?: throw Exception("INVALID USER_ID. No User found with id= $userId")
+            val user = UserDao.findById(userId)
+                ?: throw Exception("Invalid {userId}. No User found with id= $userId")
 
             PostDao.new {
-                body = "VERY NICE!! BEST POST EVER!"
                 this.user = user
+                body = post.body
+                date = post.date
+                likesCount = 0
+                commentsCount = 0
             }.toPost()
         }
 

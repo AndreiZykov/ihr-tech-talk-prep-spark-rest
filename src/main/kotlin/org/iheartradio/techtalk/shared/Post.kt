@@ -1,9 +1,8 @@
 package org.iheartradio.techtalk.shared
 
 import com.google.gson.Gson
-import org.iheartradio.techtalk.domain.dao.PostDao
+import com.google.gson.GsonBuilder
 import org.joda.time.DateTime
-import java.util.*
 
 data class Post(val id: Long = 0,
                 val userId: Long,
@@ -16,5 +15,5 @@ data class Post(val id: Long = 0,
     }
 }
 
-fun Post.toJson(): String = Gson().toJson(this)
+fun Post.toJson(): String = GsonBuilder().setPrettyPrinting().create().toJson(this)
 fun List<Post>.toJson(): String = Gson().toJson(this)

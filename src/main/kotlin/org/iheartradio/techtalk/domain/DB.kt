@@ -18,7 +18,6 @@ object DB {
 
         Database.connect(url = dbUrl, driver = DB_DRIVER, user = dbUserName, password = dbPassword)
         transaction {
-//            SchemaUtils.drop(UsersTable, PostsTable)
             SchemaUtils.createMissingTablesAndColumns(UsersTable, PostsTable)
         }
     }

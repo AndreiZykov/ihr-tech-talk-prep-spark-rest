@@ -4,7 +4,9 @@ import com.amdelamar.jhash.Hash
 import com.amdelamar.jhash.algorithms.Type.BCRYPT
 import com.google.gson.JsonObject
 import org.eclipse.jetty.http.HttpStatus
+import org.iheartradio.techtalk.domain.dao.PostDao
 import org.iheartradio.techtalk.domain.dao.UserDao
+import org.iheartradio.techtalk.domain.dao.toPost
 import org.iheartradio.techtalk.domain.dao.toUser
 import org.iheartradio.techtalk.domain.entity.UsersTable
 import org.iheartradio.techtalk.shared.User
@@ -18,7 +20,7 @@ import java.util.*
 
 object UserController {
 
-    val fetchAllUsers = Route { _, response ->
+    val selectAll = Route { _, response ->
 
         val users = transaction {
             UserDao.all().map { it.toUser() }
@@ -29,7 +31,7 @@ object UserController {
         return@Route users.toJson()
     }
 
-    val newUser = Route { request, response ->
+    val insertInto = Route { request, response ->
         val user = User from request.body()
 
         val newUser = transaction {
@@ -44,7 +46,7 @@ object UserController {
         return@Route newUser.toJson()
     }
 
-    val updateUser = Route { request, response ->
+    val update = Route { request, response ->
         val user: User = User from request.body()
 
         val updatesUser = transaction {
@@ -65,7 +67,7 @@ object UserController {
         }
     }
 
-    val deleteUser = Route { request, response ->
+    val delete = Route { request, response ->
         val user = User from request.body()
         transaction { UserDao.findById(user.id)?.delete() }
 
@@ -77,7 +79,7 @@ object UserController {
     }
 
 
-    val deleteAllUsers = Route { request, response ->
+    val deleteAll = Route { request, response ->
         transaction {
             UserDao.all().deleteAll()
         }
@@ -114,6 +116,21 @@ object UserController {
 
     }
 
+
+    val selectPostsByUser = Route { request, response ->
+        val userId: Long? = request.params(":id").toLong()
+        val posts = transaction {
+            val allPosts = PostDao.all()
+            if (userId == null) {
+                allPosts.map { it.toPost() }
+            } else {
+                allPosts.filter { it.user.id.value == userId }.map { it.toPost() }
+            }
+        }
+
+        response.status(HttpStatus.OK_200)
+        return@Route posts.toJson()
+    }
 
 
     private fun hasher(password: String) = Hash.password(password.toCharArray())
