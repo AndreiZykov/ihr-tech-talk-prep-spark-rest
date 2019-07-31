@@ -34,7 +34,6 @@ jar {
         attributes(
                 'Main-Class': 'org.iheartradio.techtalk.Application.kt'
         )
-        from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
     }
 }
 
@@ -42,7 +41,7 @@ mainClassName = 'org.iheartradio.techtalk.Application.kt'
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
-    
+
     implementation "com.sparkjava:spark-core:2.8.0"
     implementation "com.sparkjava:spark-kotlin:1.0.0-alpha"
 
@@ -74,7 +73,7 @@ task stage {
 
 task copyToLib(type: Copy) {
     into "$buildDir/libs"
-    from(configurations.compile)
+    from(configurations.implementation)
 }
 
 stage.dependsOn(copyToLib)
