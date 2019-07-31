@@ -1,6 +1,7 @@
 plugins {
     id 'java'
     id 'org.jetbrains.kotlin.jvm' version '1.3.21'
+    id 'kotlin'
 }
 
 group 'org.iheartradio.techtalk'
@@ -11,6 +12,13 @@ sourceCompatibility = 1.8
 repositories {
     mavenCentral()
     jcenter()
+}
+
+jar {
+    manifest {
+        attributes 'Main-Class': 'org.iheartradio.techtalk.ApplicationKt'
+    }
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
 }
 
 dependencies {
