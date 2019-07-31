@@ -9,6 +9,7 @@ buildscript {
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath "org.jetbrains.kotlin:kotlin-runtime:1.2.71"
+        classpath 'org.postgresql:postgresql:42.2.6'
         classpath(fileTree("libs/gradle-plugins/kotlin"))
     }
 }
@@ -57,7 +58,7 @@ dependencies {
 
     compile 'org.jetbrains.exposed:exposed:0.16.2'
 
-    compile "org.postgresql:postgresql:42.2.1"
+    compile "org.postgresql:postgresql:42.2.6"
 
     compile 'com.amdelamar:jhash:2.1.0'
 
