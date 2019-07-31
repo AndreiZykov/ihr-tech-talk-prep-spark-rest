@@ -36,6 +36,7 @@ jar {
                 'Main-Class': 'org.iheartradio.techtalk.ApplicationKt'
         )
     }
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
 }
 
 mainClassName = 'org.iheartradio.techtalk.ApplicationKt'
