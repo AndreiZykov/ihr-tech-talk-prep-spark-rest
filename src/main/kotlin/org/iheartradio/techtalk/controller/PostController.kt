@@ -12,6 +12,15 @@ import spark.Route
 
 object PostController {
 
+    val selectById = Route { request, response ->
+        val postId = request.params("id").toLong()
+        val post = transaction {
+            PostDao.findById(postId)?.toPost(3)
+        }
+        response.status(HttpStatus.OK_200)
+        post?.toJson()
+    }
+
     val insertInto = Route { request, response ->
         val post = Post from request.body()
         val userId = post.userId
@@ -35,7 +44,6 @@ object PostController {
     }
 
 
-
     val insertCommentInto = Route { request, response ->
 
         val comment = Comment from request.body()
@@ -44,11 +52,11 @@ object PostController {
             //INSERT new comment record
             val commentDao = CommentDao.new {
                 userId = comment.userId
-                postId = comment.postId
                 body = comment.body
                 date = DateTime()
                 likesCount = 0
                 dislikesCount = 0
+                post = PostDao.findById(comment.postId)!!
             }
 
             /*

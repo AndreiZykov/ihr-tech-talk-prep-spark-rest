@@ -20,12 +20,15 @@ class PostDao(id: EntityID<Long>) : LongEntity(id) {
     companion object : LongEntityClass<PostDao>(PostsTable)
 }
 
-fun PostDao.toPost() = Post(
+fun PostDao.toPost(page : Int = 1) = Post(
     id = id.value,
     userId = user.id.value,
     body = body,
     date = date.millis,
     likesCount = likesCount,
-    commentsCount = commentsCount
+    commentsCount = commentsCount,
+    comments = comments
+        .take(page * 2)
+        .map { it.toComment() }
 )
 

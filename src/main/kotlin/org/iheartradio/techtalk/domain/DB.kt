@@ -1,5 +1,6 @@
 package org.iheartradio.techtalk.domain
 
+import netscape.security.UserTarget
 import org.iheartradio.techtalk.domain.entity.CommentsTable
 import org.iheartradio.techtalk.domain.entity.PostsTable
 import org.iheartradio.techtalk.domain.entity.UsersTable
@@ -19,6 +20,7 @@ object DB {
 
         Database.connect(url = dbUrl, driver = DB_DRIVER, user = dbUserName, password = dbPassword)
         transaction {
+//            SchemaUtils.drop(CommentsTable, PostsTable, UsersTable)
             SchemaUtils.createMissingTablesAndColumns(UsersTable, PostsTable, CommentsTable)
         }
     }

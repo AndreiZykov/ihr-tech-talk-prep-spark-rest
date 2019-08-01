@@ -49,6 +49,7 @@ fun main(args: Array<String>) {
     }
 
     path(POST_PATH) {
+        get("/:id", PostController.selectById)
         post(PostController.insertInto)
         post("/:id/comment",PostController.insertCommentInto)
     }

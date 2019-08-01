@@ -9,7 +9,6 @@ import org.jetbrains.exposed.dao.LongEntityClass
 
 class CommentDao(id: EntityID<Long>) : LongEntity(id) {
     var userId by CommentsTable.userId
-    var postId by CommentsTable.postId
     var body by CommentsTable.body
     var date by CommentsTable.date
     var likesCount by CommentsTable.likesCount
@@ -22,7 +21,7 @@ class CommentDao(id: EntityID<Long>) : LongEntity(id) {
 fun CommentDao.toComment() = Comment(
     id = id.value,
     userId = userId,
-    postId = postId,
+    postId = post.id.value,
     body = body,
     date = date.millis,
     likesCount = likesCount,
