@@ -23,7 +23,7 @@ object PostController {
             PostDao.new {
                 user = localUser
                 body = post.body
-                date = DateTime(post.date)
+                date = DateTime()
                 likesCount = 0
                 commentsCount = 0
             }.toPost()
