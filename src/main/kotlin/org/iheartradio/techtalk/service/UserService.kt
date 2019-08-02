@@ -70,7 +70,7 @@ object UserService {
             throw APIException(INVALID_PASSWORD)
         }
 
-        val token = Encryptor(SALT).encrypt("${localUser.username}${DateTime().millis}")
+        val token = Encryptor(SALT).encrypt("${localUser.username}${DateTime.now().millis}")
         println("SALT= $SALT")
         println("token= $token")
         transaction { localUser.jwt = token }
