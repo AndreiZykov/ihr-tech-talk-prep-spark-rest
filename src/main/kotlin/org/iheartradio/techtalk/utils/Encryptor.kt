@@ -1,4 +1,4 @@
-package org.iheartradio
+package org.iheartradio.techtalk.utils
 
 import java.security.Key
 
@@ -9,8 +9,6 @@ import javax.crypto.spec.SecretKeySpec
  * https://stackoverflow.com/questions/1205135/how-to-encrypt-string-in-java
  */
 class Encryptor(private val keyStr: String) {
-
-//    private val keyStr: String? = null
 
     private var aesKey: Key? = null
     private var cipher: Cipher? = null
@@ -53,23 +51,19 @@ class Encryptor(private val keyStr: String) {
 
     companion object {
 
-        fun toHexString(bytes: ByteArray): String {
-            val sb = StringBuilder()
-            for (b in bytes) {
-                sb.append(String.format("%02X", b))
-            }
-            return sb.toString()
-        }
+        fun toHexString(bytes: ByteArray): String = StringBuilder()
+            .apply {
+                bytes.forEach {
+                    append(String.format("%02X", it))
+                }
+            }.toString()
 
-        fun toByteArray(s: String): ByteArray {
-            val len = s.length
-            val data = ByteArray(len / 2)
+        fun toByteArray(s: String): ByteArray = ByteArray(s.length / 2).also { data ->
             var i = 0
-            while (i < len) {
+            while (i < data.size) {
                 data[i / 2] = ((Character.digit(s[i], 16) shl 4) + Character.digit(s[i + 1], 16)).toByte()
                 i += 2
             }
-            return data
         }
     }
 
