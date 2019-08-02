@@ -1,6 +1,5 @@
 package org.iheartradio.techtalk.domain.dao
 
-import org.iheartradio.techtalk.domain.dao.UserDao.Companion.referrersOn
 import org.iheartradio.techtalk.domain.entity.CommentsTable
 import org.iheartradio.techtalk.domain.entity.PostsTable
 import org.iheartradio.techtalk.model.Post
@@ -20,7 +19,8 @@ class PostDao(id: EntityID<Long>) : LongEntity(id) {
     companion object : LongEntityClass<PostDao>(PostsTable)
 }
 
-fun PostDao.toPost(page : Int = 1) = Post(
+fun PostDao.toPost(page : Int = 1,
+                   pageItemCount: Int = 5) = Post(
     id = id.value,
     userId = user.id.value,
     body = body,
@@ -28,7 +28,11 @@ fun PostDao.toPost(page : Int = 1) = Post(
     likesCount = likesCount,
     commentsCount = commentsCount,
     comments = comments
-        .take(page * 2)
+        .filterIndexed { index, _ ->
+            val lowerBounds = (page - 1) * pageItemCount
+            val upperBounds = (page * pageItemCount) -1
+            (index >= lowerBounds).and(index <= upperBounds)
+        }
         .map { it.toComment() }
 )
 

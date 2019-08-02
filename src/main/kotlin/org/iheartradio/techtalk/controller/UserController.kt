@@ -1,9 +1,6 @@
 package org.iheartradio.techtalk.controller
 
-import org.iheartradio.techtalk.model.response.BaseResponse
-import org.iheartradio.techtalk.model.response.PostsResponse
-import org.iheartradio.techtalk.model.response.UserResponse
-import org.iheartradio.techtalk.model.response.UsersResponse
+import org.iheartradio.techtalk.model.response.*
 import org.iheartradio.techtalk.service.PostService
 import org.iheartradio.techtalk.service.UserService
 import org.iheartradio.techtalk.sparkutils.auth
@@ -20,13 +17,13 @@ object UserController {
 
     val selectAll = Route { _, _ ->
         val users = UserService.all()
-        UsersResponse(users)
+        ResponseList(users)
     }
 
     val insertInto = Route { request, _ ->
         try {
             val user = UserService.new(request.userModel())
-            UserResponse(user)
+            ResponseObject(user)
         } catch (exception: APIException) {
             exception.toBaseResponse()
         }
@@ -37,7 +34,7 @@ object UserController {
         val authResult = request.auth()
         val user = request.userModel()
         if (user.id == authResult.authorizedUserId) {
-            UserResponse(UserService.update(user))
+            ResponseObject(UserService.update(user))
         } else {
             BaseResponse.of(FORBIDDEN)
         }
@@ -56,7 +53,7 @@ object UserController {
     val signIn = Route { request, _ ->
         try {
             val user = UserService.signIn(request.userModel())
-            UserResponse(user)
+            ResponseObject(user)
         } catch (exception: APIException) {
             exception.toBaseResponse()
         }
@@ -65,7 +62,7 @@ object UserController {
     val selectPostsByUser = Route { request, _ ->
         val userId: Long = request.params(":id").toLong()
         try {
-            PostsResponse(PostService.allByUserId(userId))
+            ResponseList(PostService.allByUserId(userId))
         } catch (exception: APIException) {
             exception.toBaseResponse()
         }

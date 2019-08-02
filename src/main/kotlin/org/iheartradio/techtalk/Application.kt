@@ -4,8 +4,8 @@ import org.iheartradio.techtalk.controller.PostController
 import org.iheartradio.techtalk.controller.UserController
 import org.iheartradio.techtalk.domain.DB
 import org.iheartradio.techtalk.model.Comment
-import org.iheartradio.techtalk.model.toJson
 import org.iheartradio.techtalk.sparkutils.post
+import org.iheartradio.techtalk.utils.toJson
 import spark.Spark.*
 
 const val DEFAULT_PORT = 4567
@@ -67,3 +67,4 @@ private val herokuPort = ProcessBuilder()
     ?: DEFAULT_PORT
 
 
+//private val herokuPort = DEFAULT_PORT

@@ -1,20 +1,20 @@
 package org.iheartradio.techtalk.controller
 
 import org.eclipse.jetty.http.HttpStatus
-import org.iheartradio.techtalk.domain.dao.*
+import org.iheartradio.techtalk.domain.dao.CommentDao
+import org.iheartradio.techtalk.domain.dao.PostDao
+import org.iheartradio.techtalk.domain.dao.toComment
+import org.iheartradio.techtalk.domain.dao.toPost
 import org.iheartradio.techtalk.model.Comment
-import org.iheartradio.techtalk.model.Post
 import org.iheartradio.techtalk.model.response.BaseResponse
-import org.iheartradio.techtalk.model.response.PostResponse
-import org.iheartradio.techtalk.model.response.PostsResponse
-import org.iheartradio.techtalk.model.toJson
+import org.iheartradio.techtalk.model.response.ResponseObject
 import org.iheartradio.techtalk.service.PostService
 import org.iheartradio.techtalk.sparkutils.auth
 import org.iheartradio.techtalk.sparkutils.postModel
-import org.iheartradio.techtalk.sparkutils.userModel
 import org.iheartradio.techtalk.utils.APIException
 import org.iheartradio.techtalk.utils.ErrorType
 import org.iheartradio.techtalk.utils.toBaseResponse
+import org.iheartradio.techtalk.utils.toJson
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.joda.time.DateTime
 import spark.Route
@@ -41,7 +41,7 @@ object PostController {
         }
 
         try {
-            PostResponse(PostService.new(post))
+            ResponseObject(PostService.new(post))
         } catch (exception: APIException){
             exception.toBaseResponse()
         }

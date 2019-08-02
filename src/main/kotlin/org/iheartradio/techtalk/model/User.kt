@@ -7,13 +7,10 @@ data class User constructor(
     val username: String = "",
     val password: String? = null,
     val jwt: String? = null
-) {
+): EntityModel {
 
 
     companion object {
         infix fun from(jsonString: String): User = Gson().fromJson(jsonString, User::class.java)
     }
 }
-
-fun User.toJson(): String = Gson().toJson(this)
-fun List<User>.toJson(): String = Gson().toJson(this)

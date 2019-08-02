@@ -2,7 +2,9 @@ package org.iheartradio.techtalk.service
 
 import com.amdelamar.jhash.Hash
 import com.amdelamar.jhash.algorithms.Type
+import org.iheartradio.Encryptor
 import org.iheartradio.techtalk.controller.deleteAll
+import org.iheartradio.techtalk.domain.SALT
 import org.iheartradio.techtalk.domain.dao.UserDao
 import org.iheartradio.techtalk.domain.dao.toUser
 import org.iheartradio.techtalk.domain.dao.toUserWithJwt
@@ -11,7 +13,7 @@ import org.iheartradio.techtalk.model.User
 import org.iheartradio.techtalk.utils.APIException
 import org.iheartradio.techtalk.utils.ErrorType.*
 import org.jetbrains.exposed.sql.transactions.transaction
-import java.util.*
+import org.joda.time.DateTime
 
 object UserService {
 
@@ -68,20 +70,32 @@ object UserService {
             throw APIException(INVALID_PASSWORD)
         }
 
-        transaction { localUser.jwt = "${localUser.username}|${UUID.randomUUID()}" }
+        val token = Encryptor(SALT).encrypt("${localUser.username}${DateTime().millis}")
+        println("SALT= $SALT")
+        println("token= $token")
+        transaction { localUser.jwt = token }
         return localUser.toUserWithJwt()
     }
 
-    fun auth(jwt: String): AuthResult {
-        val username = jwt.split("|").first()
+/*    fun auth(jwt: String): AuthResult {
+        val parts = jwt.split(" ")
+        val username = parts[1].split("|").first()
         val user = transaction {
             UserDao.find { UsersTable.username eq username }
                 .firstOrNull()
         }
-        return AuthResult(success = jwt == user?.jwt, authorizedUserId = user?.id?.value)
-    }
+        return AuthResult(success = parts[1] == user?.jwt, authorizedUserId = user?.id?.value)
+    }*/
 
-    // helpers
+    fun auth(jwt: String): AuthResult {
+        val parts = jwt.split(" ")
+        val token = parts[1]
+        val user = transaction {
+            UserDao.find { UsersTable.jwt eq token }
+                .firstOrNull()
+        }
+        return AuthResult(success = token == user?.jwt, authorizedUserId = user?.id?.value)
+    }
 
     private val hasher: (String) -> Hash = { password ->
         Hash.password(password.toCharArray())

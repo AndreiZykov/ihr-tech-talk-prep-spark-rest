@@ -1,6 +1,5 @@
 package org.iheartradio.techtalk.domain
 
-import netscape.security.UserTarget
 import org.iheartradio.techtalk.domain.entity.CommentsTable
 import org.iheartradio.techtalk.domain.entity.PostsTable
 import org.iheartradio.techtalk.domain.entity.UsersTable
@@ -8,7 +7,11 @@ import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.transactions.transaction
 
+
+val SALT =  System.getenv("TT_SALT")
+
 object DB {
+
 
     fun init() {
 
