@@ -4,7 +4,16 @@ import org.eclipse.jetty.http.HttpStatus
 import org.iheartradio.techtalk.domain.dao.*
 import org.iheartradio.techtalk.model.Comment
 import org.iheartradio.techtalk.model.Post
+import org.iheartradio.techtalk.model.response.BaseResponse
+import org.iheartradio.techtalk.model.response.PostResponse
 import org.iheartradio.techtalk.model.toJson
+import org.iheartradio.techtalk.service.PostService
+import org.iheartradio.techtalk.sparkutils.auth
+import org.iheartradio.techtalk.sparkutils.postModel
+import org.iheartradio.techtalk.sparkutils.userModel
+import org.iheartradio.techtalk.utils.APIException
+import org.iheartradio.techtalk.utils.ErrorType
+import org.iheartradio.techtalk.utils.toBaseResponse
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.joda.time.DateTime
 import spark.Route
@@ -22,25 +31,20 @@ object PostController {
     }
 
     val insertInto = Route { request, response ->
-        val post = Post from request.body()
-        val userId = post.userId
-        val newPost = transaction {
+        val authResult = request.auth()
 
-            val localUser = UserDao.findById(userId)
-                ?: throw Exception("Invalid {userId}. No User found with id= $userId")
+        val post = request.postModel()
 
-            PostDao.new {
-                user = localUser
-                body = post.body
-                date = DateTime()
-                likesCount = 0
-                commentsCount = 0
-            }.toPost()
+        if(authResult.authorizedUserId != post.userId){
+            return@Route BaseResponse.of(ErrorType.FORBIDDEN)
         }
 
-        response.status(HttpStatus.OK_200)
+        try {
+            PostResponse(PostService.new(post))
+        } catch (exception: APIException){
+            exception.toBaseResponse()
+        }
 
-        return@Route newPost.toJson()
     }
 
 

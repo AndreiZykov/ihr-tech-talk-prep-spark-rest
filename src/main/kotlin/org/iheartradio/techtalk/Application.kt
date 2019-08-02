@@ -1,16 +1,15 @@
 package org.iheartradio.techtalk
 
-import org.eclipse.jetty.http.HttpStatus
-import org.iheartradio.techtalk.controller.CommentController
 import org.iheartradio.techtalk.controller.PostController
 import org.iheartradio.techtalk.controller.UserController
 import org.iheartradio.techtalk.domain.DB
 import org.iheartradio.techtalk.model.Comment
 import org.iheartradio.techtalk.model.toJson
-import spark.Route
+import org.iheartradio.techtalk.sparkutils.post
 import spark.Spark.*
 
 const val DEFAULT_PORT = 4567
+const val CONTENT_TYPE = "application/json"
 const val KEY_POST_ENV_VAR = "PORT"
 const val USER_PATH = "/user"
 const val POST_PATH = "/post"
@@ -32,7 +31,6 @@ fun main(args: Array<String>) {
     DB.init()
 
     get("/") { req, res ->
-        res.status(HttpStatus.OK_200)
         "Hello World"
     }
 
@@ -51,33 +49,21 @@ fun main(args: Array<String>) {
     path(POST_PATH) {
         get("/:id", PostController.selectById)
         post(PostController.insertInto)
-        post("/:id/comment",PostController.insertCommentInto)
+        post("/:id/comment", PostController.insertCommentInto)
     }
 
     path(COMMENT_PATH) {
 
     }
 
+    afterAfter { _ , response -> response.type(CONTENT_TYPE) }
+
 }
 
 private val herokuPort = ProcessBuilder()
-    .let { it.environment()[KEY_POST_ENV_VAR]}
+    .let { it.environment()[KEY_POST_ENV_VAR] }
     .takeIf { port -> port != null }
     ?.let { Integer.parseInt(it) }
     ?: DEFAULT_PORT
 
-fun get(route: Route) {
-    get("", route)
-}
 
-fun delete(route: Route) {
-    delete("", route)
-}
-
-fun post(route: Route) {
-    post("", route)
-}
-
-fun patch(route: Route) {
-    patch("", route)
-}
