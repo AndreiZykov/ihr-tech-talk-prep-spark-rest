@@ -2,7 +2,7 @@ package org.iheartradio.techtalk.service
 
 import com.amdelamar.jhash.Hash
 import com.amdelamar.jhash.algorithms.Type
-import org.iheartradio.Encryptor
+import org.iheartradio.techtalk.utils.Encryptor
 import org.iheartradio.techtalk.controller.deleteAll
 import org.iheartradio.techtalk.domain.SALT
 import org.iheartradio.techtalk.domain.dao.UserDao
