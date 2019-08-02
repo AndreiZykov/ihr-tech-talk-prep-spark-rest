@@ -92,6 +92,6 @@ object UserService {
         password.isNotEmpty() && hasher(password).verify(passwordHash)
     }
 
-    data class AuthResult(val success: Boolean, val authorizedUserId: Long? = null)
+    class AuthResult(val success: Boolean, val authorizedUserId: Long? = null)
 
 }
