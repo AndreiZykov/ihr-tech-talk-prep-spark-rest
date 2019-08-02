@@ -6,6 +6,7 @@ import org.iheartradio.techtalk.model.Comment
 import org.iheartradio.techtalk.model.Post
 import org.iheartradio.techtalk.model.response.BaseResponse
 import org.iheartradio.techtalk.model.response.PostResponse
+import org.iheartradio.techtalk.model.response.PostsResponse
 import org.iheartradio.techtalk.model.toJson
 import org.iheartradio.techtalk.service.PostService
 import org.iheartradio.techtalk.sparkutils.auth
@@ -26,7 +27,7 @@ object PostController {
         val post = transaction {
             PostDao.findById(postId)?.toPost(3)
         }
-        response.status(HttpStatus.OK_200)
+
         post?.toJson()
     }
 

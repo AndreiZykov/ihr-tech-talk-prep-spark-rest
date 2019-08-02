@@ -3,6 +3,7 @@ package org.iheartradio.techtalk.service
 import org.iheartradio.techtalk.domain.dao.PostDao
 import org.iheartradio.techtalk.domain.dao.UserDao
 import org.iheartradio.techtalk.domain.dao.toPost
+import org.iheartradio.techtalk.domain.entity.PostsTable
 import org.iheartradio.techtalk.model.Post
 import org.iheartradio.techtalk.utils.APIException
 import org.iheartradio.techtalk.utils.ErrorType
@@ -20,6 +21,13 @@ object PostService {
                 likesCount = 0
                 commentsCount = 0
             }.toPost()
+        }
+    }
+
+    fun allByUserId(userId: Long) : List<Post> {
+        return transaction {
+            val localUser = UserDao.findById(userId) ?: throw APIException(ErrorType.USER_NOT_FOUND)
+            localUser.posts.map { it.toPost() }
         }
     }
 }
