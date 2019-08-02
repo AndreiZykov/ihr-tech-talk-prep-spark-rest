@@ -1,118 +1,69 @@
 package org.iheartradio.techtalk.controller
 
-import com.amdelamar.jhash.Hash
-import com.amdelamar.jhash.algorithms.Type.BCRYPT
-import com.google.gson.JsonObject
 import org.eclipse.jetty.http.HttpStatus
 import org.iheartradio.techtalk.domain.dao.PostDao
-import org.iheartradio.techtalk.domain.dao.UserDao
 import org.iheartradio.techtalk.domain.dao.toPost
-import org.iheartradio.techtalk.domain.dao.toUser
-import org.iheartradio.techtalk.domain.entity.UsersTable
-import org.iheartradio.techtalk.model.User
+import org.iheartradio.techtalk.model.response.BaseResponse
+import org.iheartradio.techtalk.model.response.UserResponse
+import org.iheartradio.techtalk.model.response.UsersResponse
 import org.iheartradio.techtalk.model.toJson
+import org.iheartradio.techtalk.service.UserService
+import org.iheartradio.techtalk.sparkutils.auth
+import org.iheartradio.techtalk.sparkutils.userModel
+import org.iheartradio.techtalk.utils.APIException
+import org.iheartradio.techtalk.utils.ErrorType
+import org.iheartradio.techtalk.utils.toBaseResponse
 import org.jetbrains.exposed.dao.Entity
 import org.jetbrains.exposed.sql.SizedIterable
 import org.jetbrains.exposed.sql.transactions.transaction
 import spark.Route
-import java.util.*
 
 
 object UserController {
 
     val selectAll = Route { _, response ->
-
-        val users = transaction {
-            UserDao.all().map { it.toUser() }
-        }
-
-        response.status(HttpStatus.OK_200)
-
-        return@Route users.toJson()
+        val users = UserService.all()
+        UsersResponse(users)
     }
 
     val insertInto = Route { request, response ->
-        val user = User from request.body()
-
-        val newUser = transaction {
-            UserDao.new {
-                username = user.username
-                password_hash = hasher(user.password).create()
-            }
-        }.toUser()
-
-        response.status(HttpStatus.OK_200)
-
-        return@Route newUser.toJson()
+        try {
+            val user = UserService.new(request.userModel())
+            UserResponse(user)
+        } catch (exception: APIException) {
+            exception.toBaseResponse()
+        }
     }
 
     val update = Route { request, response ->
-        val user: User = User from request.body()
-
-        val updatesUser = transaction {
-            UserDao.findById(user.id)?.apply {
-                // TODO: add some fields
-            }
-        }?.toUser()
-
-        return@Route if (updatesUser != null) {
-
-            response.status(HttpStatus.OK_200)
-            updatesUser.toJson()
+        // user can only update his own user data
+        val authResult = request.auth()
+        val user = request.userModel()
+        if(user.id == authResult.authorizedUserId){
+            UserResponse(UserService.update(user))
         } else {
-            response.status(400)
-            """
-                {"error":"not found"}
-            """.trimIndent()
+            BaseResponse.of(ErrorType.FORBIDDEN)
         }
     }
 
     val delete = Route { request, response ->
-        val user = User from request.body()
-        transaction { UserDao.findById(user.id)?.delete() }
-        response.status(HttpStatus.OK_200)
-        return@Route """
-                {"response":"success"}
-            """.trimIndent()
+        UserService.delete(request.userModel())
+        BaseResponse()
     }
 
-
-    val deleteAll = Route { request, response ->
-        transaction {
-            UserDao.all().deleteAll()
-        }
-        response.status(HttpStatus.OK_200)
-
-        return@Route JsonObject().apply {
-            addProperty("response", true)
-        }
+    val deleteAll = Route { _, response ->
+        UserService.deleteAll()
+        BaseResponse()
     }
 
     val signIn = Route { request, response ->
-        val user = User from request.body()
-        val localUser = transaction { UserDao.find { UsersTable.username.eq(user.username) }.firstOrNull() }
-        if (localUser != null) {
-            if (verifyPassword(user.password, localUser.password_hash)) {
-                transaction {
-                    localUser.jwt = UUID.randomUUID().toString()
-                }
-                response.status(HttpStatus.OK_200)
-                localUser.toUser().toJson()
-            } else {
-                response.status(400)
-                return@Route """
-                {"error":"wrong password"}
-            """.trimIndent()
-            }
-
-        } else {
-            response.status(400)
-            return@Route """
-                {"error":"user not found"}
-            """.trimIndent()
+        try {
+            val user = UserService.signIn(request.userModel())
+            UserResponse(user)
+        } catch (exception: APIException) {
+            exception.toBaseResponse()
         }
     }
-
 
     val selectPostsByUser = Route { request, response ->
         val userId: Long? = request.params(":id").toLong()
@@ -128,26 +79,8 @@ object UserController {
         response.status(HttpStatus.OK_200)
         return@Route posts.toJson()
     }
-
-    private val hasher: (String) -> Hash = { password ->
-        Hash.password(password.toCharArray())
-            .saltLength(20)
-            .algorithm(BCRYPT)
-    }
-
-    private val verifyPassword: (String, String) -> Boolean = { password, passwordHash ->
-        password.isNotEmpty() && hasher(password).verify(passwordHash)
-    }
-
 }
 
 fun SizedIterable<Entity<*>>.deleteAll() {
     forEach { it.delete() }
 }
-
-
-inline class Password(val value: String)
-fun Password.toCharArray() = value.toCharArray()
-fun Password.isNotEmpty() = value.isNotEmpty()
-fun Hash.verify(password: HashedPassword) = verify(password.value)
-inline class HashedPassword(val value: String)

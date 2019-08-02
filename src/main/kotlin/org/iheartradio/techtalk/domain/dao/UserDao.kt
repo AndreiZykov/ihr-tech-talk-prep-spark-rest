@@ -16,7 +16,8 @@ class UserDao(id: EntityID<Long>) : LongEntity(id) {
     companion object : LongEntityClass<UserDao>(UsersTable)
 }
 
-fun UserDao.toUser() = User(id = id.value, username = username, password = password_hash, jwt = jwt ?: "")
+fun UserDao.toUser() = User(id = id.value, username = username)
+fun UserDao.toUserWithJwt() = User(id = id.value, username = username, jwt = jwt)
 
 
 /**
