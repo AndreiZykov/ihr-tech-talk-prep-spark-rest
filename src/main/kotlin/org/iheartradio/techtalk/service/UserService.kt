@@ -47,10 +47,11 @@ object UserService {
 
     fun update(user: User): User {
         return transaction {
-            UserDao.findById(user.id)?.apply {
+            val localUser = UserDao.findById(user.id) ?: throw APIException(USER_NOT_FOUND)
+            localUser.apply {
                 // TODO: add some fields
-            }
-        }!!.toUser()
+            }.toUser()
+        }
     }
 
     fun signIn(user: User): User {
