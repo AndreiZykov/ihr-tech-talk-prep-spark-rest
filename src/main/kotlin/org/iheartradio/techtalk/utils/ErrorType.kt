@@ -1,5 +1,7 @@
 package org.iheartradio.techtalk.utils
 
+import org.eclipse.jetty.http.HttpStatus
+
 // internal error codes
 enum class ErrorType(val code: Int, val message: String) {
     AUTHORIZATION_FAILED(401, "authorization failed"),

@@ -12,11 +12,8 @@ data class Comment(
     val date: Long = DateTime.now().millis,
     val likesCount: Int = 0,
     val dislikesCount: Int = 0
-) {
+) : EntityModel {
     companion object {
         infix fun from(jsonString: String): Comment = Gson().fromJson(jsonString, Comment::class.java)
     }
 }
-
-fun Comment.toJson(): String = GsonBuilder().setPrettyPrinting().create().toJson(this)
-fun List<Comment>.toJson(): String = Gson().toJson(this)
