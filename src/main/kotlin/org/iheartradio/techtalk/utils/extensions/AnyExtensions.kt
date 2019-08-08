@@ -1,4 +1,4 @@
-package org.iheartradio.techtalk.utils
+package org.iheartradio.techtalk.utils.extensions
 
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder

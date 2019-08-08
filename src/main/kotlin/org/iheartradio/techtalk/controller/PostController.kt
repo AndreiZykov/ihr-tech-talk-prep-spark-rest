@@ -15,7 +15,7 @@ import org.iheartradio.techtalk.sparkutils.postModel
 import org.iheartradio.techtalk.utils.APIException
 import org.iheartradio.techtalk.utils.ErrorType
 import org.iheartradio.techtalk.utils.toBaseResponse
-import org.iheartradio.techtalk.utils.toJson
+import org.iheartradio.techtalk.utils.extensions.toJson
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.joda.time.DateTime
 import spark.Route
@@ -25,10 +25,10 @@ object PostController {
 
     val selectById = Route { request, response ->
         val postId = request.params("id").toLong()
+        val page: Int = request.queryMap("page").integerValue() ?: 1
         val post = transaction {
-            PostDao.findById(postId)?.toPost(3)
+            PostDao.findById(postId)?.toPost(page)
         }
-
         post?.toJson()
     }
 
@@ -37,13 +37,13 @@ object PostController {
 
         val post = request.postModel()
 
-        if(authResult.authorizedUserId != post.userId){
+        if (authResult.authorizedUserId != post.userId) {
             return@Route BaseResponse.of(ErrorType.FORBIDDEN)
         }
 
         try {
             ResponseObject(PostService.new(post))
-        } catch (exception: APIException){
+        } catch (exception: APIException) {
             exception.toBaseResponse()
         }
 
@@ -97,14 +97,15 @@ object PostController {
     }
 
 
-
     val feed = Route { request, response ->
-        return@Route  try {
-            ResponseList(PostService.fetchFeed())
-        } catch (exception: APIException){
+        return@Route try {
+            val page: Int = request.queryMap("page").integerValue() ?: 1
+            ResponseList(PostService.fetchFeed(page))
+        } catch (exception: APIException) {
             exception.toBaseResponse()
         }
     }
+
 
 
 //    val fetchPostsForUser = Route { request, response ->

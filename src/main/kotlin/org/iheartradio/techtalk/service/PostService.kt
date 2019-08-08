@@ -7,6 +7,7 @@ import org.iheartradio.techtalk.domain.entity.PostsTable
 import org.iheartradio.techtalk.model.Post
 import org.iheartradio.techtalk.utils.APIException
 import org.iheartradio.techtalk.utils.ErrorType
+import org.iheartradio.techtalk.utils.extensions.paginate
 import org.jetbrains.exposed.sql.Op
 import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.count
@@ -36,10 +37,11 @@ object PostService {
     }
 
 
-    fun fetchFeed() = transaction {
+    fun fetchFeed(page : Int = 1,
+                  pageItemCount: Int = 5) = transaction {
         PostDao.all()
             .orderBy(PostsTable.date to SortOrder.DESC)
-            .limit(10)
+            .paginate(page, pageItemCount)
             .map { it.toPost() }
     }
 

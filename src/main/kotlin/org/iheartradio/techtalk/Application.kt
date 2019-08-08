@@ -5,7 +5,7 @@ import org.iheartradio.techtalk.controller.UserController
 import org.iheartradio.techtalk.domain.DB
 import org.iheartradio.techtalk.model.Comment
 import org.iheartradio.techtalk.sparkutils.post
-import org.iheartradio.techtalk.utils.toJson
+import org.iheartradio.techtalk.utils.extensions.toJson
 import spark.Spark.*
 
 const val DEFAULT_PORT = 4567
