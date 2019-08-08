@@ -7,6 +7,7 @@ import org.iheartradio.techtalk.domain.dao.toComment
 import org.iheartradio.techtalk.domain.dao.toPost
 import org.iheartradio.techtalk.model.Comment
 import org.iheartradio.techtalk.model.response.BaseResponse
+import org.iheartradio.techtalk.model.response.ResponseList
 import org.iheartradio.techtalk.model.response.ResponseObject
 import org.iheartradio.techtalk.service.PostService
 import org.iheartradio.techtalk.sparkutils.auth
@@ -93,6 +94,16 @@ object PostController {
         }
 
         return@Route newComment.toJson()
+    }
+
+
+
+    val feed = Route { request, response ->
+        return@Route  try {
+            ResponseList(PostService.fetchFeed())
+        } catch (exception: APIException){
+            exception.toBaseResponse()
+        }
     }
 
 

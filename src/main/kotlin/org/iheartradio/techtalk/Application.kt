@@ -14,6 +14,7 @@ const val KEY_POST_ENV_VAR = "PORT"
 const val USER_PATH = "/user"
 const val POST_PATH = "/post"
 const val COMMENT_PATH = "/comment"
+const val FEED = "/feed"
 
 
 fun main(args: Array<String>) {
@@ -54,6 +55,10 @@ fun main(args: Array<String>) {
 
     path(COMMENT_PATH) {
 
+    }
+
+    path(FEED) {
+        get("/", PostController.feed)
     }
 
     afterAfter { _ , response -> response.type(CONTENT_TYPE) }

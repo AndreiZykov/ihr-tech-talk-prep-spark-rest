@@ -1,15 +1,22 @@
 package org.iheartradio.techtalk.controller
 
-import org.eclipse.jetty.http.HttpStatus
-import org.iheartradio.techtalk.domain.dao.CommentDao
-import org.iheartradio.techtalk.domain.dao.PostDao
-import org.iheartradio.techtalk.domain.dao.toComment
-import org.iheartradio.techtalk.model.Comment
-import org.jetbrains.exposed.sql.transactions.transaction
-import org.joda.time.DateTime
+import org.iheartradio.techtalk.model.response.BaseResponse
+import org.iheartradio.techtalk.service.CommentService
+import org.iheartradio.techtalk.sparkutils.commentModel
 import spark.Route
 
 object CommentController {
+
+    val delete = Route { request, _ ->
+        CommentService.delete(request.commentModel())
+        BaseResponse()
+    }
+
+    val update = Route { request, _ ->
+        CommentService.update(request.commentModel())
+        BaseResponse()
+    }
+
 
 //    val insertInto = Route { request, response ->
 //

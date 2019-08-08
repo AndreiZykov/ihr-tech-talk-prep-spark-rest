@@ -2,6 +2,7 @@ package org.iheartradio.techtalk.sparkutils
 
 import org.eclipse.jetty.http.HttpHeader.AUTHORIZATION
 import org.eclipse.jetty.http.HttpStatus
+import org.iheartradio.techtalk.model.Comment
 import org.iheartradio.techtalk.model.Post
 import org.iheartradio.techtalk.model.User
 import org.iheartradio.techtalk.model.response.BaseResponse
@@ -21,8 +22,9 @@ fun Request.auth(): UserService.AuthResult {
 }
 
 // request ext functions
-fun Request.userModel(): User = User.from(body())
-fun Request.postModel(): Post = Post.from(body())
+fun Request.userModel(): User = User from body()
+fun Request.postModel(): Post = Post from body()
+fun Request.commentModel(): Comment = Comment from body()
 
 fun get(route: Route) = run { get("", route) }
 fun delete(route: Route) = run { delete("", route) }

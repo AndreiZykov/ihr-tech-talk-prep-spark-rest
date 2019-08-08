@@ -17,10 +17,8 @@ import org.joda.time.DateTime
 
 object UserService {
 
-    fun all(): List<User> {
-        return transaction {
-            UserDao.all().map { it.toUser() }
-        }
+    fun all(): List<User> = transaction {
+        UserDao.all().map { it.toUser() }
     }
 
     fun delete(user: User) {
@@ -36,7 +34,7 @@ object UserService {
         if (transaction { UserDao.find { UsersTable.username eq user.username }.firstOrNull() } != null) {
             throw APIException(USERNAME_EXIST)
         }
-        if(user.password.isNullOrEmpty()){
+        if (user.password.isNullOrEmpty()) {
             throw APIException(INVALID_PASSWORD)
         }
         return transaction {
@@ -62,7 +60,7 @@ object UserService {
                 .firstOrNull()
         } ?: throw APIException(USER_NOT_FOUND)
 
-        if(user.password.isNullOrEmpty()){
+        if (user.password.isNullOrEmpty()) {
             throw APIException(INVALID_PASSWORD)
         }
 
