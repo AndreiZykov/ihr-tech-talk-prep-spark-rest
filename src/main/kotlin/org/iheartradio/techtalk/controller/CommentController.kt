@@ -18,6 +18,12 @@ object CommentController {
     }
 
 
+
+    val like = Route { request, _ ->
+        CommentService.delete(request.commentModel())
+        BaseResponse()
+    }
+
 //    val insertInto = Route { request, response ->
 //
 //        val comment = Comment from request.body()

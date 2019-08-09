@@ -10,8 +10,9 @@ data class Comment(
     val postId: Long,
     val body: String,
     val date: Long = DateTime.now().millis,
-    val likesCount: Int = 0,
-    val dislikesCount: Int = 0
+    val likeRating: Int = 0,
+    val repostCount: Int = 0,
+    val shareCount: Int = 0
 ) : EntityModel {
     companion object {
         infix fun from(jsonString: String): Comment = Gson().fromJson(jsonString, Comment::class.java)

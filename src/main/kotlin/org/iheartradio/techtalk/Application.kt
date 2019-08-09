@@ -1,5 +1,6 @@
 package org.iheartradio.techtalk
 
+import org.iheartradio.techtalk.controller.CommentController
 import org.iheartradio.techtalk.controller.PostController
 import org.iheartradio.techtalk.controller.UserController
 import org.iheartradio.techtalk.domain.DB
@@ -11,10 +12,16 @@ import spark.Spark.*
 const val DEFAULT_PORT = 4567
 const val CONTENT_TYPE = "application/json"
 const val KEY_POST_ENV_VAR = "PORT"
+
+//endpoint base paths
 const val USER_PATH = "/user"
 const val POST_PATH = "/post"
 const val COMMENT_PATH = "/comment"
-const val FEED = "/feed"
+const val FEED_PATH = "/feed"
+
+//endpoint path actions
+const val LIKE = "like"
+const val DISLIKE = "dislike"
 
 
 fun main(args: Array<String>) {
@@ -54,10 +61,10 @@ fun main(args: Array<String>) {
     }
 
     path(COMMENT_PATH) {
-
+        post("/:id/$LIKE", CommentController.like)
     }
 
-    path(FEED) {
+    path(FEED_PATH) {
         get("/", PostController.feed)
     }
 

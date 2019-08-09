@@ -12,13 +12,24 @@ import spark.Request
 import spark.Route
 import spark.Spark.*
 
+//fun Request.auth(): UserService.AuthResult {
+//    val jwt = headers(AUTHORIZATION.asString()) ?: ""
+//    val authResult = UserService.auth(jwt)
+//    if (!authResult.success) {
+//        halt(HttpStatus.UNAUTHORIZED_401, BaseResponse.of(AUTHORIZATION_FAILED).toString())
+//    }
+//    return authResult
+//}
+
+
+
 fun Request.auth(): UserService.AuthResult {
     val jwt = headers(AUTHORIZATION.asString()) ?: ""
-    val authResult = UserService.auth(jwt)
-    if (!authResult.success) {
-        halt(HttpStatus.UNAUTHORIZED_401, BaseResponse.of(AUTHORIZATION_FAILED).toString())
-    }
-    return authResult
+   return UserService.auth(jwt).also { authResult ->
+       if (!authResult.success) {
+           halt(HttpStatus.UNAUTHORIZED_401, BaseResponse.of(AUTHORIZATION_FAILED).toString())
+       }
+   }
 }
 
 // request ext functions

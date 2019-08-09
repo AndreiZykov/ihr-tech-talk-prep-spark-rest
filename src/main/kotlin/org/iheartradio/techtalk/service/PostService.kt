@@ -16,17 +16,15 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import org.joda.time.DateTime
 
 object PostService {
-    fun new(post: Post) : Post {
-        return transaction {
-            val localUser = UserDao.findById(post.userId) ?: throw APIException(ErrorType.USER_NOT_FOUND)
-            PostDao.new {
-                user = localUser
-                body = post.body
-                date = DateTime()
-                likesCount = 0
-                commentsCount = 0
-            }.toPost()
-        }
+    fun new(post: Post) : Post = transaction {
+        val localUser = UserDao.findById(post.userId) ?: throw APIException(ErrorType.USER_NOT_FOUND)
+        PostDao.new {
+            user = localUser
+            body = post.body
+            date = DateTime()
+            likesCount = 0
+            commentsCount = 0
+        }.toPost()
     }
 
     fun allByUserId(userId: Long) : List<Post> {

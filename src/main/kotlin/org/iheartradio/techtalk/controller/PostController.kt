@@ -33,20 +33,15 @@ object PostController {
     }
 
     val insertInto = Route { request, response ->
-        val authResult = request.auth()
-
         val post = request.postModel()
-
-        if (authResult.authorizedUserId != post.userId) {
-            return@Route BaseResponse.of(ErrorType.FORBIDDEN)
-        }
-
-        try {
-            ResponseObject(PostService.new(post))
-        } catch (exception: APIException) {
-            exception.toBaseResponse()
-        }
-
+        runCatching { PostService.new(post) }
+            .fold(
+            { newPost -> ResponseObject(newPost) },
+            { e ->
+                return@Route (e as? APIException)?.toBaseResponse() ?: BaseResponse.of(ErrorType.SERVER_ERROR)
+            })
+            .takeIf { request.auth().authorizedUserId == post.userId }
+            ?: BaseResponse.of(ErrorType.FORBIDDEN)
     }
 
 
@@ -60,8 +55,9 @@ object PostController {
                 userId = comment.userId
                 body = comment.body
                 date = DateTime()
-                likesCount = 0
-                dislikesCount = 0
+                likeRating = 0
+                repostCount = 0
+                shareCount = 0
                 post = PostDao.findById(comment.postId)!!
             }
 

@@ -11,8 +11,9 @@ class CommentDao(id: EntityID<Long>) : LongEntity(id) {
     var userId by CommentsTable.userId
     var body by CommentsTable.body
     var date by CommentsTable.date
-    var likesCount by CommentsTable.likesCount
-    var dislikesCount by CommentsTable.dislikesCount
+    var likeRating by CommentsTable.likeRating
+    var repostCount by CommentsTable.repostCount
+    var shareCount by CommentsTable.shareCount
     var post by PostDao referencedOn CommentsTable.post
         //var user by UserDao referencedOn PostsTable.user
     companion object : LongEntityClass<CommentDao>(CommentsTable)
@@ -24,7 +25,8 @@ fun CommentDao.toComment() = Comment(
     postId = post.id.value,
     body = body,
     date = date.millis,
-    likesCount = likesCount,
-    dislikesCount = dislikesCount
+    likeRating = likeRating,
+    repostCount = repostCount,
+    shareCount = shareCount
 )
 
