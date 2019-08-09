@@ -1,6 +1,7 @@
 package org.iheartradio.techtalk.controller
 
 import org.iheartradio.techtalk.model.response.BaseResponse
+import org.iheartradio.techtalk.model.response.SuccessResponse
 import org.iheartradio.techtalk.service.CommentService
 import org.iheartradio.techtalk.sparkutils.auth
 import org.iheartradio.techtalk.sparkutils.commentModel
@@ -19,11 +20,18 @@ object CommentController {
     }
 
 
+    val dislike = Route { request, _ ->
+        val authorizedUserId = request.auth().authorizedUserId ?: 0
+        val commentId = request.params("id").toLong()
+        CommentService.dislike(authorizedUserId, commentId)
+        SuccessResponse()
+    }
+
     val like = Route { request, _ ->
         val authorizedUserId = request.auth().authorizedUserId ?: 0
         val commentId = request.params("id").toLong()
         CommentService.like(authorizedUserId, commentId)
-        BaseResponse()
+        SuccessResponse()
     }
 
 //    val insertInto = Route { request, response ->

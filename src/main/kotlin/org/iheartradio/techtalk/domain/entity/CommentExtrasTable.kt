@@ -6,7 +6,6 @@ object CommentExtrasTable : LongIdTable() {
     val userId = long("USER_ID").primaryKey()
     val commentId = long("COMMENT_ID").primaryKey()
     val like = integer("LIKE")
-    val dislike = integer("DISLIKE")
     val repost = integer("REPOST")
     val share = integer("SHARE")
 }

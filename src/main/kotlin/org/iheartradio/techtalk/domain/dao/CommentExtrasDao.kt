@@ -10,16 +10,15 @@ class CommentExtrasDao(id: EntityID<Long>) : LongEntity(id) {
     var userId by CommentExtrasTable.userId
     var commentId by CommentExtrasTable.commentId
     var like by CommentExtrasTable.like
-    var dislike by CommentExtrasTable.dislike
     var repost by CommentExtrasTable.repost
     var share by CommentExtrasTable.share
 
     fun updateLike() {
-        like = if(like == 0) 1 else 0
+        like = if(like <= 0) 1 else 0
     }
 
     fun updateDislike() {
-        dislike = if(dislike == 0) 1 else 0
+        like = if(like >= 0) -1 else 0
     }
 
     companion object : LongEntityClass<CommentExtrasDao>(CommentExtrasTable)
@@ -30,7 +29,6 @@ fun CommentExtrasDao.toCommentExtra() = CommentExtras(
     userId = userId,
     commentId = commentId,
     like = like,
-    dislike = dislike,
     repost = repost,
     share = share
 )

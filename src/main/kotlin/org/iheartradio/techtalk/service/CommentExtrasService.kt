@@ -21,7 +21,6 @@ object CommentExtrasService {
             userId = extras.userId
             commentId = extras.commentId
             like = extras.like
-            dislike = extras.dislike
             repost = extras.repost
             share = extras.share
         }.toCommentExtra()
