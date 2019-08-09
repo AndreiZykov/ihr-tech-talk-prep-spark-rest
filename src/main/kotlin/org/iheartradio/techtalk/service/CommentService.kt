@@ -13,28 +13,69 @@ object CommentService {
         transaction { CommentDao.findById(comment.id)?.delete() }
     }
 
+    fun dislike(userId: Long, commentId: Long) {
+        transaction {
+
+            val extras = CommentExtrasService.find(userId, commentId)
+
+            if(extras != null) { //recordExists
+                CommentExtrasDao.findById(extras.id)?.updateDislike()
+            } else {
+                CommentExtrasService.new(CommentExtras(
+                    userId = userId,
+                    commentId = commentId,
+                    dislike = 1
+                ))
+            }
+
+            val totalLikes = CommentExtrasDao
+                .find { CommentExtrasTable.userId eq userId }
+                .sumBy { it.like }
+
+            val totalDislike = CommentExtrasDao
+                .find { CommentExtrasTable.userId eq userId }
+                .sumBy { it.dislike }
+
+            CommentDao.findById(commentId)?.apply {
+                likeRating = totalLikes - totalDislike
+            }
+        }
+    }
+
+    fun like(userId: Long, commentId: Long) {
+        transaction {
+
+            val extras = CommentExtrasService.find(userId, commentId)
+
+            if(extras != null) { //recordExists
+                CommentExtrasDao.findById(extras.id)?.updateLike()
+            } else {
+                CommentExtrasService.new(CommentExtras(
+                    userId = userId,
+                    commentId = commentId,
+                    like = 1
+                ))
+            }
+
+            val totalLikes = CommentExtrasDao
+                .find { CommentExtrasTable.userId eq userId }
+                .sumBy { it.like }
+
+            val totalDislike = CommentExtrasDao
+                .find { CommentExtrasTable.userId eq userId }
+                .sumBy { it.dislike }
+
+            CommentDao.findById(commentId)?.apply {
+                likeRating = totalLikes - totalDislike
+            }
+        }
+    }
+
+
     fun update(comment: Comment) {
         transaction { CommentDao.findById(comment.id)?.apply {
             body = comment.body
         } }
     }
 
-
-    fun like(userId: Long,
-             commentId: Long) {
-        transaction {
-         //   CommentDao.findById(comment.id)?.delete()
-            val totalLikes = CommentExtrasDao
-                .find { CommentExtrasTable.id eq commentId }
-                .sumBy { it.like }
-                .plus(1)
-
-            CommentExtrasService.new(CommentExtras(
-                userId = userId,
-                commentId = commentId,
-                like = 1
-            ))
-
-        }
-    }
 }

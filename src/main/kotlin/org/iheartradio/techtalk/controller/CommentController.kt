@@ -2,6 +2,7 @@ package org.iheartradio.techtalk.controller
 
 import org.iheartradio.techtalk.model.response.BaseResponse
 import org.iheartradio.techtalk.service.CommentService
+import org.iheartradio.techtalk.sparkutils.auth
 import org.iheartradio.techtalk.sparkutils.commentModel
 import spark.Route
 
@@ -18,9 +19,10 @@ object CommentController {
     }
 
 
-
     val like = Route { request, _ ->
-        CommentService.delete(request.commentModel())
+        val authorizedUserId = request.auth().authorizedUserId ?: 0
+        val commentId = request.params("id").toLong()
+        CommentService.like(authorizedUserId, commentId)
         BaseResponse()
     }
 
