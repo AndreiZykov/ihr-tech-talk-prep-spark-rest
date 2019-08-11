@@ -75,6 +75,7 @@ fun main(args: Array<String>) {
 
     path(COMMENT_PATH) {
         post("/:id/$LIKE", CommentController.like)
+        post("/:id/$DISLIKE", CommentController.dislike)
     }
 
     path(COMMENT_EXTRAS_PATH) {

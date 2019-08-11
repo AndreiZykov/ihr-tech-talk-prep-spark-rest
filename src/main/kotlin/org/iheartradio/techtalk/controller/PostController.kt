@@ -23,7 +23,7 @@ import spark.Route
 
 object PostController {
 
-    val selectById = Route { request, response ->
+    val selectById = Route { request, _ ->
         val postId = request.params("id").toLong()
         val page: Int = request.queryMap("page").integerValue() ?: 1
         val post = transaction {
@@ -32,7 +32,7 @@ object PostController {
         post?.toJson()
     }
 
-    val insertInto = Route { request, response ->
+    val insertInto = Route { request, _ ->
         val post = request.postModel()
         runCatching { PostService.new(post) }
             .fold(
