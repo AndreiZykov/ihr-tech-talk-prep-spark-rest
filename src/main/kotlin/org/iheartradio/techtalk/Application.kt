@@ -33,14 +33,6 @@ const val DISLIKE = "dislike"
 
 fun main(args: Array<String>) {
 
-    println(
-        Comment(
-            userId = 3,
-            postId = 20,
-            body = "THIS POST SUCKS!"
-        ).toJson()
-    )
-
     port(herokuPort)
 
     DB.init()
@@ -65,6 +57,7 @@ fun main(args: Array<String>) {
         get("/:id", PostController.selectById)
         post(PostController.insertInto)
         post("/:id/comment", PostController.insertCommentInto)
+        post("/:id/reply", PostController.insertReply)
     }
 
 

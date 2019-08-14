@@ -1,11 +1,9 @@
 package org.iheartradio.techtalk.controller
 
 import org.eclipse.jetty.http.HttpStatus
-import org.iheartradio.techtalk.domain.dao.CommentDao
-import org.iheartradio.techtalk.domain.dao.PostDao
-import org.iheartradio.techtalk.domain.dao.toComment
-import org.iheartradio.techtalk.domain.dao.toPost
+import org.iheartradio.techtalk.domain.dao.*
 import org.iheartradio.techtalk.model.Comment
+import org.iheartradio.techtalk.model.Post
 import org.iheartradio.techtalk.model.response.BaseResponse
 import org.iheartradio.techtalk.model.response.ResponseList
 import org.iheartradio.techtalk.model.response.ResponseObject
@@ -14,6 +12,7 @@ import org.iheartradio.techtalk.sparkutils.auth
 import org.iheartradio.techtalk.sparkutils.postModel
 import org.iheartradio.techtalk.utils.APIException
 import org.iheartradio.techtalk.utils.ErrorType
+import org.iheartradio.techtalk.utils.apiException
 import org.iheartradio.techtalk.utils.toBaseResponse
 import org.iheartradio.techtalk.utils.extensions.toJson
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -25,25 +24,42 @@ object PostController {
 
     val selectById = Route { request, _ ->
         val postId = request.params("id").toLong()
+        //TODO: Removing paging from this call. We will be fetching the replies with another endpoint/call
         val page: Int = request.queryMap("page").integerValue() ?: 1
         val post = transaction {
-            PostDao.findById(postId)?.toPost(page)
+            PostDao.findById(postId)?.toPost()
         }
         post?.toJson()
     }
 
+//    val insertInto = Route { request, _ ->
+//        val post = request.postModel()
+//        runCatching { PostService.new(post) }
+//            .fold(
+//                { newPost -> ResponseObject(newPost) },
+//                { e ->
+//                    return@Route (e as? APIException)?.toBaseResponse() ?: BaseResponse.of(ErrorType.SERVER_ERROR)
+//                })
+//            .takeIf { request.auth().authorizedUserId == post.userId }
+//            ?: BaseResponse.of(ErrorType.FORBIDDEN)
+//    }
+
+
     val insertInto = Route { request, _ ->
         val post = request.postModel()
-        runCatching { PostService.new(post) }
-            .fold(
-            { newPost -> ResponseObject(newPost) },
-            { e ->
-                return@Route (e as? APIException)?.toBaseResponse() ?: BaseResponse.of(ErrorType.SERVER_ERROR)
-            })
+        ResponseObject(PostService.new(post))
             .takeIf { request.auth().authorizedUserId == post.userId }
             ?: BaseResponse.of(ErrorType.FORBIDDEN)
     }
 
+
+    val insertReply = Route { request, _ ->
+        val reply = request.postModel()
+        val replyToPostId = request.params("id").toLong()
+        ResponseObject(PostService.reply(replyToPostId, reply))
+            .takeIf { request.auth().authorizedUserId == reply.userId }
+            ?: BaseResponse.of(ErrorType.FORBIDDEN)
+    }
 
     val insertCommentInto = Route { request, response ->
 
@@ -103,59 +119,20 @@ object PostController {
     }
 
 
-
-//    val fetchPostsForUser = Route { request, response ->
-//        val posts = transaction {
-////            PostDao.find {
-////                PostsTable.userId eq request.params("userId").toLong()
-////            }.map { it.toPost() }
-//
-//
-//            /*
-//            val query = Users.innerJoin(UserRatings).innerJoin(StarWarsFilm)
-//  .slice(Users.columns)
-//  .select {
-//    StarWarsFilms.sequelId eq 2 and (UserRatings.value gt 5)
-//  }.withDistinct()
-//             */
-//
-////            val query = PostsTable.innerJoin(UsersTable)
-////                .slice(PostsTable.columns)
-////                .select {
-////                    PostsTable.user eq UsersTable
-////                }
-//
-//            PostDao.find {
-//                PostsTable.user eq request.params("userId").toLong()
-//            }.map { it.toPost() }
-//
-//
-//
-//        }
-//
-//        response.status(200)
-//        return@Route posts.toJson()
-//    }
-
-
-//    val fetchPostsForUser = Route { request, response ->
-//        val posts = transaction {
-//            val userId = request.params("userId").toLong()
-////            UserDao[userId]
-//
-//
-//            UserDao.all()
-//                .filter { it.id.value == userId }
-//                .map { it.posts }
-//
-//            UserDao.findById(userId)?.posts
-//
-//        }.map { it.toPost() }
-//
-//
-//        response.status(200)
-//        return@Route posts.toJson()
-//    }
+    val insertRepost = Route { request, _ ->
+        val originalPostId = request.params("id").toLong()
+        val post = request.postModel().apply {
+            originalPost = PostDao.findById(originalPostId)?.toPost()
+        }
+        runCatching { PostService.new(post) }
+            .fold(
+                { newPost -> ResponseObject(newPost) },
+                { e ->
+                    return@Route (e as? APIException)?.toBaseResponse() ?: BaseResponse.of(ErrorType.SERVER_ERROR)
+                })
+            .takeIf { request.auth().authorizedUserId == post.userId }
+            ?: BaseResponse.of(ErrorType.FORBIDDEN)
+    }
 
 
 }
