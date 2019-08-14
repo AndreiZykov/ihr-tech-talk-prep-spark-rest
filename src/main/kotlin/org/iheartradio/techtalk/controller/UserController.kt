@@ -10,6 +10,8 @@ import org.iheartradio.techtalk.utils.ErrorType.FORBIDDEN
 import org.iheartradio.techtalk.utils.toBaseResponse
 import org.jetbrains.exposed.dao.Entity
 import org.jetbrains.exposed.sql.SizedIterable
+import org.jetbrains.exposed.sql.transactions.TransactionManager
+import org.jetbrains.exposed.sql.transactions.transaction
 import spark.Route
 
 

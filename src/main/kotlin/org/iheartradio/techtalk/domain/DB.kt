@@ -1,9 +1,6 @@
 package org.iheartradio.techtalk.domain
 
-import org.iheartradio.techtalk.domain.entity.CommentExtrasTable
-import org.iheartradio.techtalk.domain.entity.CommentsTable
-import org.iheartradio.techtalk.domain.entity.PostsTable
-import org.iheartradio.techtalk.domain.entity.UsersTable
+import org.iheartradio.techtalk.domain.entity.*
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -25,7 +22,10 @@ object DB {
         Database.connect(url = dbUrl, driver = DB_DRIVER, user = dbUserName, password = dbPassword)
         transaction {
 //            SchemaUtils.drop(CommentExtrasTable, CommentsTable, PostsTable, UsersTable)
-            SchemaUtils.createMissingTablesAndColumns(UsersTable, PostsTable, CommentsTable, CommentExtrasTable)
+//            SchemaUtils.createMissingTablesAndColumns(UsersTable, PostsTable, CommentsTable, CommentExtrasTable)
+
+//            SchemaUtils.drop(RepliesTable, PostsTable)
+            SchemaUtils.createMissingTablesAndColumns(UsersTable, PostsTable, RepliesTable)
         }
     }
 
