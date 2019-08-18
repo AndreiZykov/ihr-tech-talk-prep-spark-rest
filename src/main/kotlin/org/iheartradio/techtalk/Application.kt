@@ -45,9 +45,9 @@ fun main(args: Array<String>) {
 
     path(USER_PATH) {
         get(UserController.selectAll)
-        post( UserController.insertInto)
+        post(UserController.insertInto)
         patch(UserController.update)
-        delete( UserController.delete)
+        delete(UserController.delete)
         //convenience service to delete all users (for dev mess-ups with references)
         delete("/all", UserController.deleteAll)
         get("/:id/posts", UserController.selectPostsByUser)
@@ -75,7 +75,7 @@ fun main(args: Array<String>) {
         get(CommentExtrasController.selectAll)
     }
 
-    afterAfter { _ , response -> response.type(CONTENT_TYPE) }
+    afterAfter { _, response -> response.type(CONTENT_TYPE) }
 
 }
 
