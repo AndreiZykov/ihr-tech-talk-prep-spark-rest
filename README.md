@@ -1,4 +1,4 @@
-## Create New User
+### Create New User
 * ***URL***
   /user
 * ***Method:***
@@ -6,7 +6,7 @@
 * ***Data Params***
    `{
       "username":"Boris",
-      "password":""
+      "password":"pAssWoRd1!"
     }`
 * ***Success Response:***
     ***Content:*** 
