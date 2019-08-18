@@ -1,5 +1,5 @@
 ### User
-* ***New User***
+- New User
 * ***URL***
   /user
 * ***Method:***
@@ -18,7 +18,7 @@
        }
      }`
      
-* ***New User***
+- New User
 * ***URL***
   /user
 * ***Method:***
