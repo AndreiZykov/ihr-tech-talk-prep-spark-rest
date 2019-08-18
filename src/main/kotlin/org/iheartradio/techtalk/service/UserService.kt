@@ -75,17 +75,6 @@ object UserService {
         return localUser.toUserWithJwt()
     }
 
-//    fun auth(jwt: String): AuthResult {
-//        val parts = jwt.split(" ")
-//        val token = parts[1]
-//        val user = transaction {
-//            UserDao.find { UsersTable.jwt eq token }
-//                .firstOrNull()
-//        }
-//        return AuthResult(success = token == user?.jwt, authorizedUserId = user?.id?.value)
-//    }
-
-
     fun auth(jwt: String): AuthResult = transaction {
         jwt.split(" ")
             .takeIf { parts -> parts.size == 2 }
