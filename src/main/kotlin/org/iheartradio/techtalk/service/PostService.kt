@@ -1,20 +1,16 @@
 package org.iheartradio.techtalk.service
 
-import org.iheartradio.techtalk.SQLStatement
 import org.iheartradio.techtalk.domain.dao.*
-import org.iheartradio.techtalk.domain.entity.CommentExtrasTable
+import org.iheartradio.techtalk.domain.entity.PostExtrasTable
 import org.iheartradio.techtalk.domain.entity.PostsTable
 import org.iheartradio.techtalk.domain.entity.RepliesTable
+import org.iheartradio.techtalk.model.PostExtras
 import org.iheartradio.techtalk.model.Post
 import org.iheartradio.techtalk.utils.APIException
 import org.iheartradio.techtalk.utils.ErrorType
 import org.iheartradio.techtalk.utils.apiException
-import org.iheartradio.techtalk.utils.extensions.execAndMap
 import org.iheartradio.techtalk.utils.extensions.paginate
 import org.jetbrains.exposed.sql.*
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.greater
-import org.jetbrains.exposed.sql.transactions.TransactionManager
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.joda.time.DateTime
 
@@ -32,6 +28,99 @@ object PostService {
         }.toPost()
     }
 
+
+    fun dislike(userId: Long, postId: Long) {
+        transaction {
+
+            val extras = PostExtrasService.find(userId, postId)
+
+            if(extras != null) { //recordExists
+                PostExtrasDao.findById(extras.id)?.updateDislike()
+            } else {
+                PostExtrasService.new(
+                    PostExtras(
+                        userId = userId,
+                        postId = postId,
+                        like = -1
+                    )
+                )
+            }
+
+            val totalLikes = PostExtrasDao
+                .find { PostExtrasTable.userId.eq(userId) and PostExtrasTable.like.greater(0) }
+                .count()
+
+            val totalDislike = PostExtrasDao
+                .find { PostExtrasTable.userId.eq(userId) and PostExtrasTable.like.less(0) }
+                .count()
+
+            PostDao.findById(postId)?.apply {
+                likesRating = totalLikes - totalDislike
+            }
+        }
+    }
+
+    fun like(userId: Long, postId: Long) {
+        transaction {
+
+            val extras = PostExtrasService.find(userId, postId)
+
+            if(extras != null) { //recordExists
+                PostExtrasDao.findById(extras.id)?.updateLike()
+            } else {
+                PostExtrasService.new(
+                    PostExtras(
+                        userId = userId,
+                        postId = postId,
+                        like = 1
+                    )
+                )
+            }
+
+            val totalLikes = PostExtrasDao
+                .find { PostExtrasTable.userId.eq(userId) and PostExtrasTable.like.greater(0) }
+                .count()
+
+            val totalDislike = PostExtrasDao
+                .find { PostExtrasTable.userId.eq(userId) and PostExtrasTable.like.less(0) }
+                .count()
+
+            PostDao.findById(postId)?.apply {
+                likesRating = totalLikes - totalDislike
+            }
+        }
+    }
+
+    /*
+      fun repost(userId: Long, commentId: Long) {
+        transaction {
+
+            val extras = PostExtrasService.find(userId, commentId)
+
+            if(extras != null) { //recordExists
+                PostExtrasDao.findById(extras.id)?.updateLike()
+            } else {
+                PostExtrasService.new(PostExtras(
+                    userId = userId,
+                    commentId = commentId,
+                    like = 1
+                ))
+            }
+
+            val totalLikes = PostExtrasDao
+                .find { PostExtrasTable.userId.eq(userId) and PostExtrasTable.like.greater(0) }
+                .count()
+
+            val totalDislike = PostExtrasDao
+                .find { PostExtrasTable.userId.eq(userId) and PostExtrasTable.like.less(0) }
+                .count()
+
+            CommentDao.findById(commentId)?.apply {
+                likeRating = totalLikes - totalDislike
+            }
+        }
+    }
+     */
 
     fun reply(replyToPostId: Long,
               reply: Post) : Post = transaction {

@@ -14,7 +14,7 @@ data class Post(
     //post this was re-posted from
     var originalPost: Post? = null,
     //post that this post is a reply to
-    val parentPost: Post? = null,
+//    val parentPost: Post? = null,
 //    val replies: List<Post> = emptyList(),
     val replyCount: Int
 ) : EntityModel {
