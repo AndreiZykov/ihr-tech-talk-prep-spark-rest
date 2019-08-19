@@ -75,7 +75,12 @@ fun main(args: Array<String>) {
         get(CommentExtrasController.selectAll)
     }
 
-    afterAfter { _, response -> response.type(CONTENT_TYPE) }
+    afterAfter { _, response ->
+        response.type(CONTENT_TYPE)
+        // temporary for react
+        response.header("Access-Control-Allow-Origin", "http://localhost:3000")
+        response.header("Access-Control-Allow-Credentials", "true");
+    }
 
 }
 
