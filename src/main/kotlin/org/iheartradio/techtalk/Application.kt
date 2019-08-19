@@ -60,15 +60,6 @@ fun main(args: Array<String>) {
         get(PostController.feed)
     }
 
-    path(COMMENT_PATH) {
-        post("/:id/$LIKE", CommentController.like)
-        post("/:id/$DISLIKE", CommentController.dislike)
-    }
-
-    path(COMMENT_EXTRAS_PATH) {
-        get(CommentExtrasController.selectAll)
-    }
-
     afterAfter { _, response ->
         response.type(CONTENT_TYPE)
         // temporary for react
