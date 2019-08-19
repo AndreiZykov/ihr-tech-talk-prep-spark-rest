@@ -25,7 +25,7 @@ object DB {
 //            SchemaUtils.createMissingTablesAndColumns(UsersTable, PostsTable, CommentsTable, CommentExtrasTable)
 
 //            SchemaUtils.drop(RepliesTable, PostsTable)
-            SchemaUtils.createMissingTablesAndColumns(UsersTable, PostsTable, RepliesTable)
+            SchemaUtils.createMissingTablesAndColumns(UsersTable, PostsTable, RepliesTable, PostExtrasTable)
         }
     }
 
