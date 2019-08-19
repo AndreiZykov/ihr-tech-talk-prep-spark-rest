@@ -168,7 +168,7 @@ object PostService {
 
 
     fun fetchFeed(page : Int = 1,
-                  pageItemCount: Int = 5) = transaction {
+                  pageItemCount: Int = 10) = transaction {
         PostDao.all()
             .orderBy(PostsTable.date to SortOrder.DESC)
             .paginate(page, pageItemCount)
