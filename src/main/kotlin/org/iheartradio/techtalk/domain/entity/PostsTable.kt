@@ -17,5 +17,6 @@ object PostsTable : LongIdTable() {
     val replyCount = integer("REPLY_COUNT").default(0)
     //the original post that this re-posted
     val originalPostId = long("ORIGINAL_POST_ID").nullable()
+//    val originalPost = reference("ORIGINAL_POST", PostsTable).nullable()
 }
 
