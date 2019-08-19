@@ -16,7 +16,7 @@ object DB {
         Database.connect(url = dbUrl, driver = DB_DRIVER, user = dbUserName, password = dbPassword)
         transaction {
             val tables = arrayOf(UsersTable, PostsTable, RepliesTable, PostExtrasTable)
-            SchemaUtils.drop(*tables.reversedArray())
+//            SchemaUtils.drop(*tables.reversedArray())
             SchemaUtils.createMissingTablesAndColumns(*tables)
         }
     }

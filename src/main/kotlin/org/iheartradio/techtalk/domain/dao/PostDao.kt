@@ -25,9 +25,10 @@ class PostDao(id: EntityID<Long>) : LongEntity(id) {
 fun PostDao.toPost() : Post {
 //    val originalPost: Post? = if(originalPostId != null) PostDao.findById(originalPostId!!)?.toPost() else null
     val originalPost: Post? = originalPostId?.let { PostDao.findById(it) }?.toPost()
-    return Post(
+    return Post (
         id = id.value,
         userId = user.id.value,
+        userName = user.username,
         body = body,
         date = date.millis,
         likesRating = likesRating,
