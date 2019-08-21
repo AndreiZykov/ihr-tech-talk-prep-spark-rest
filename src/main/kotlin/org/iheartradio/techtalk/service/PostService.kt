@@ -16,7 +16,7 @@ import org.joda.time.DateTime
 
 object PostService {
 
-    fun new(post: Post) : Post = transaction {
+    fun new(post: Post): Post = transaction {
         val localUser = UserDao.findById(post.userId) ?: throw APIException(ErrorType.USER_NOT_FOUND)
         PostDao.new {
             user = localUser
@@ -29,12 +29,115 @@ object PostService {
     }
 
 
+
+//    fun repost(post: Post, originalPostId: Long): Post = transaction {
+//        val localUser = UserDao.findById(post.userId) ?: throw APIException(ErrorType.USER_NOT_FOUND)
+//        val originalPost: Post = PostDao.findById(originalPostId)?.toPost() ?: apiException(ErrorType.POST_NOT_FOUND)
+//        val newPost = PostDao.new {
+//            user = localUser
+//            body = post.body
+//            date = DateTime()
+//            likesRating = 0
+//            repostCount = 0
+//            this.originalPostId = originalPost.id
+//        }.toPost()
+//
+//        val localUserId = localUser.id.value
+//
+//        val extras = PostExtrasService.find(localUserId, originalPost.id)
+//
+//        if (extras != null) {
+//            PostExtrasDao.findById(extras.id)?.updateRepost()
+//        } else {
+//            PostExtrasService.new(
+//                PostExtras(
+//                    userId = localUserId,
+//                    postId = originalPost.id,
+//                    repost = 1
+//                )
+//            )
+//        }
+//
+//        val totalReposts = PostExtrasDao
+//            .find { PostExtrasTable.postId.eq(originalPost.id) and PostExtrasTable.repost.greater(0) }
+//            .count()
+//
+//
+//        PostDao.findById(originalPost.userId)?.apply {
+//            repostCount = totalReposts
+//        }
+//
+//        newPost
+//    }
+
+
+    fun repost(localUserId: Long, originalPostId: Long): Post = transaction {
+        val localUser = UserDao.findById(localUserId) ?: throw APIException(ErrorType.USER_NOT_FOUND)
+        val originalPost: Post = PostDao.findById(originalPostId)?.toPost() ?: apiException(ErrorType.POST_NOT_FOUND)
+//        val alreadyReposted = PostDao.find {
+//            PostsTable.originalPostId.eq(originalPostId) and PostsTable.user.eq(localUserId)
+//        }.count() > 0
+
+        val newPost = PostDao.new {
+            user = localUser
+            body = originalPost.body
+            date = DateTime()
+            likesRating = 0
+            repostCount = 0
+            this.originalPostId = originalPost.id
+        }.toPost()
+
+        val extras = PostExtrasService.find(localUserId, originalPost.id)
+
+        if (extras != null) {
+//            PostExtrasDao.findById(extras.id)?.updateRepost()
+
+            PostExtrasDao.findById(extras.id)?.apply {
+                repost = if(repost > 0) 0 else 1
+            }
+
+        } else {
+            PostExtrasService.new(
+                PostExtras(
+                    userId = localUserId,
+                    postId = originalPost.id,
+                    repost = 1
+                )
+            )
+        }
+
+        val totalReposts = PostExtrasDao
+            .find { PostExtrasTable.postId.eq(originalPost.id) and PostExtrasTable.repost.greater(0) }
+            .count()
+
+
+        PostDao.findById(originalPost.userId)?.apply {
+            repostCount = totalReposts
+        }
+
+        newPost
+    }
+
+
+    fun quote(post: Post, quotedPostId: Long): Post = transaction {
+        val localUser = UserDao.findById(post.userId) ?: throw APIException(ErrorType.USER_NOT_FOUND)
+        val quotedPost: Post = PostDao.findById(quotedPostId)?.toPost() ?: apiException(ErrorType.POST_NOT_FOUND)
+        PostDao.new {
+            user = localUser
+            body = post.body
+            date = DateTime()
+            likesRating = 0
+            repostCount = 0
+            this.quotedPostId = quotedPost.id
+        }.toPost()
+    }
+
     fun dislike(userId: Long, postId: Long) {
         transaction {
 
             val extras = PostExtrasService.find(userId, postId)
 
-            if(extras != null) { //recordExists
+            if (extras != null) { //recordExists
                 PostExtrasDao.findById(extras.id)?.updateDislike()
             } else {
                 PostExtrasService.new(
@@ -47,11 +150,12 @@ object PostService {
             }
 
             val totalLikes = PostExtrasDao
-                .find { PostExtrasTable.userId.eq(userId) and PostExtrasTable.like.greater(0) }
+//                .find { PostExtrasTable.userId.eq(userId) and PostExtrasTable.like.greater(0) }
+                .find { PostExtrasTable.postId.eq(postId) and PostExtrasTable.like.greater(0) }
                 .count()
 
             val totalDislike = PostExtrasDao
-                .find { PostExtrasTable.userId.eq(userId) and PostExtrasTable.like.less(0) }
+                .find { PostExtrasTable.postId.eq(postId) and PostExtrasTable.like.less(0) }
                 .count()
 
             PostDao.findById(postId)?.apply {
@@ -65,7 +169,7 @@ object PostService {
 
             val extras = PostExtrasService.find(userId, postId)
 
-            if(extras != null) { //recordExists
+            if (extras != null) { //recordExists
                 PostExtrasDao.findById(extras.id)?.updateLike()
             } else {
                 PostExtrasService.new(
@@ -78,11 +182,11 @@ object PostService {
             }
 
             val totalLikes = PostExtrasDao
-                .find { PostExtrasTable.userId.eq(userId) and PostExtrasTable.like.greater(0) }
+                .find { PostExtrasTable.postId.eq(postId) and PostExtrasTable.like.greater(0) }
                 .count()
 
             val totalDislike = PostExtrasDao
-                .find { PostExtrasTable.userId.eq(userId) and PostExtrasTable.like.less(0) }
+                .find { PostExtrasTable.postId.eq(postId) and PostExtrasTable.like.less(0) }
                 .count()
 
             PostDao.findById(postId)?.apply {
@@ -91,39 +195,11 @@ object PostService {
         }
     }
 
-    /*
-      fun repost(userId: Long, commentId: Long) {
-        transaction {
 
-            val extras = PostExtrasService.find(userId, commentId)
-
-            if(extras != null) { //recordExists
-                PostExtrasDao.findById(extras.id)?.updateLike()
-            } else {
-                PostExtrasService.new(PostExtras(
-                    userId = userId,
-                    commentId = commentId,
-                    like = 1
-                ))
-            }
-
-            val totalLikes = PostExtrasDao
-                .find { PostExtrasTable.userId.eq(userId) and PostExtrasTable.like.greater(0) }
-                .count()
-
-            val totalDislike = PostExtrasDao
-                .find { PostExtrasTable.userId.eq(userId) and PostExtrasTable.like.less(0) }
-                .count()
-
-            CommentDao.findById(commentId)?.apply {
-                likeRating = totalLikes - totalDislike
-            }
-        }
-    }
-     */
-
-    fun reply(replyToPostId: Long,
-              reply: Post) : Post = transaction {
+    fun reply(
+        replyToPostId: Long,
+        reply: Post
+    ): Post = transaction {
 
         val localUser = UserDao.findById(reply.userId) ?: throw APIException(ErrorType.USER_NOT_FOUND)
 
@@ -159,7 +235,7 @@ object PostService {
         newReply.toPost()
     }
 
-    fun allByUserId(userId: Long) : List<Post> {
+    fun allByUserId(userId: Long): List<Post> {
         return transaction {
             val localUser = UserDao.findById(userId) ?: throw APIException(ErrorType.USER_NOT_FOUND)
             localUser.posts.map { it.toPost() }

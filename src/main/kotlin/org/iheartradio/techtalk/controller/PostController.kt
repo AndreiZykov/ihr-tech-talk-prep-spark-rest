@@ -1,6 +1,8 @@
 package org.iheartradio.techtalk.controller
 
 import org.iheartradio.techtalk.domain.dao.*
+import org.iheartradio.techtalk.domain.entity.PostsTable
+import org.iheartradio.techtalk.model.Post
 import org.iheartradio.techtalk.model.response.BaseResponse
 import org.iheartradio.techtalk.model.response.ResponseList
 import org.iheartradio.techtalk.model.response.ResponseObject
@@ -10,8 +12,10 @@ import org.iheartradio.techtalk.sparkutils.auth
 import org.iheartradio.techtalk.sparkutils.postModel
 import org.iheartradio.techtalk.utils.APIException
 import org.iheartradio.techtalk.utils.ErrorType
+import org.iheartradio.techtalk.utils.apiException
 import org.iheartradio.techtalk.utils.toBaseResponse
 import org.iheartradio.techtalk.utils.extensions.toJson
+import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.transactions.transaction
 import spark.Route
 
@@ -57,6 +61,30 @@ object PostController {
             ?: BaseResponse.of(ErrorType.FORBIDDEN)
     }
 
+//    val repost = Route { request, _ ->
+//        val newPost = request.postModel()
+//        val authorizedUserId = request.auth().authorizedUserId
+//        val originalPostId = request.params("id").toLong()
+//        ResponseObject(PostService.repost(newPost, originalPostId))
+//            .takeIf { authorizedUserId == newPost.userId }
+//            ?: BaseResponse.of(ErrorType.FORBIDDEN)
+//    }
+
+
+    val repost = Route { request, _ ->
+        val authorizedUserId = request.auth().authorizedUserId ?: 0
+        val originalPostId = request.params("id").toLong()
+        ResponseObject(PostService.repost(authorizedUserId, originalPostId))
+    }
+
+    val quote = Route { request, _ ->
+        val newPost = request.postModel()
+        val authorizedUserId = request.auth().authorizedUserId
+        val quotedPostId = request.params("id").toLong()
+        ResponseObject(PostService.quote(newPost, quotedPostId))
+            .takeIf { authorizedUserId == newPost.userId }
+            ?: BaseResponse.of(ErrorType.FORBIDDEN)
+    }
 
     val dislike = Route { request, _ ->
         val authorizedUserId = request.auth().authorizedUserId ?: 0
@@ -82,20 +110,22 @@ object PostController {
     }
 
 
-    val insertRepost = Route { request, _ ->
-        val originalPostId = request.params("id").toLong()
-        val post = request.postModel().apply {
-            originalPost = PostDao.findById(originalPostId)?.toPost()
-        }
-        runCatching { PostService.new(post) }
-            .fold(
-                { newPost -> ResponseObject(newPost) },
-                { e ->
-                    return@Route (e as? APIException)?.toBaseResponse() ?: BaseResponse.of(ErrorType.SERVER_ERROR)
-                })
-            .takeIf { request.auth().authorizedUserId == post.userId }
-            ?: BaseResponse.of(ErrorType.FORBIDDEN)
-    }
+//    val insertRepost = Route { request, _ ->
+//        val originalPostId = request.params("id").toLong()
+//        val post = request.postModel().apply {
+//            originalPost = PostDao.findById(originalPostId)?.toPost()
+//        }
+//        runCatching { PostService.new(post) }
+//            .fold(
+//                { newPost -> ResponseObject(newPost) },
+//                { e ->
+//                    return@Route (e as? APIException)?.toBaseResponse() ?: BaseResponse.of(ErrorType.SERVER_ERROR)
+//                })
+//            .takeIf { request.auth().authorizedUserId == post.userId }
+//            ?: BaseResponse.of(ErrorType.FORBIDDEN)
+//    }
+
+
 
 
 }

@@ -7,6 +7,7 @@ import org.iheartradio.techtalk.sparkutils.delete
 import org.iheartradio.techtalk.sparkutils.get
 import org.iheartradio.techtalk.sparkutils.patch
 import org.iheartradio.techtalk.sparkutils.post
+import org.joda.time.DateTime
 import spark.Spark.*
 
 const val DEFAULT_PORT = 4567
@@ -23,9 +24,12 @@ const val FEED_PATH = "/feed"
 //endpoint path actions
 const val LIKE = "like"
 const val DISLIKE = "dislike"
-
+const val REPOST = "repost"
+const val QUOTE = "quote"
 
 fun main(args: Array<String>) {
+
+    println("CURRENT DATE IN MILLS = ${DateTime().millis}")
 
     port(herokuPort)
 
@@ -53,6 +57,8 @@ fun main(args: Array<String>) {
         post("/:id/reply", PostController.insertReply)
         post("/:id/$LIKE", PostController.like)
         post("/:id/$DISLIKE", PostController.dislike)
+        post("/:id/$REPOST", PostController.repost)
+        post("/:id/$QUOTE", PostController.quote)
     }
 
 
@@ -75,5 +81,3 @@ private val herokuPort = ProcessBuilder()
     ?.let { Integer.parseInt(it) }
     ?: DEFAULT_PORT
 
-
-//private val herokuPort = DEFAULT_PORT
