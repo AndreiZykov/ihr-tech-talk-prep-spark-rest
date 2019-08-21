@@ -28,6 +28,7 @@ fun PostDao.toPost() : Post {
     return Post(
         id = id.value,
         userId = user.id.value,
+        userName = user.username,
         body = body,
         date = date.millis,
         likesRating = likesRating,

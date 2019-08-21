@@ -7,6 +7,7 @@ import org.joda.time.DateTime
 data class Post(
     val id: Long = 0,
     val userId: Long,
+    val userName: String,
     val body: String,
     val date: Long = DateTime.now().millis,
     val likesRating: Int = 0,
