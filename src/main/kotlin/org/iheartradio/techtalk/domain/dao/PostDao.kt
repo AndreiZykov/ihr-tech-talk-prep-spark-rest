@@ -14,8 +14,7 @@ class PostDao(id: EntityID<Long>) : LongEntity(id) {
     var repostCount by PostsTable.repostCount
     var replyCount by PostsTable.replyCount
     var originalPostId by PostsTable.originalPostId
-//    var originalPost by PostsTable.originalPost
-//    var replies by PostsTable.replies
+    var quotedPostId by PostsTable.quotedPostId
 
     companion object : LongEntityClass<PostDao>(PostsTable)
 }
@@ -25,6 +24,7 @@ class PostDao(id: EntityID<Long>) : LongEntity(id) {
 fun PostDao.toPost() : Post {
 //    val originalPost: Post? = if(originalPostId != null) PostDao.findById(originalPostId!!)?.toPost() else null
     val originalPost: Post? = originalPostId?.let { PostDao.findById(it) }?.toPost()
+    val quotedPost: Post? = quotedPostId?.let { PostDao.findById(it) }?.toPost()
     return Post(
         id = id.value,
         userId = user.id.value,
@@ -33,6 +33,7 @@ fun PostDao.toPost() : Post {
         likesRating = likesRating,
         repostCount = repostCount,
         originalPost = originalPost,
+        quotedPost = quotedPost,
         replyCount = replyCount
     )
 }

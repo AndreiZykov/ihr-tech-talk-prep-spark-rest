@@ -20,6 +20,10 @@ class PostExtrasDao(id: EntityID<Long>) : LongEntity(id) {
         like = if(like >= 0) -1 else 0
     }
 
+    fun updateRepost() {
+        repost = if(repost > 0) 0 else 1
+    }
+
     companion object : LongEntityClass<PostExtrasDao>(PostExtrasTable)
 }
 

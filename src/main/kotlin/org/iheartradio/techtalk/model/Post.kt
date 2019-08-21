@@ -13,9 +13,7 @@ data class Post(
     val repostCount: Int = 0,
     //post this was re-posted from
     var originalPost: Post? = null,
-    //post that this post is a reply to
-//    val parentPost: Post? = null,
-//    val replies: List<Post> = emptyList(),
+    var quotedPost: Post? = null,
     val replyCount: Int
 ) : EntityModel {
     companion object {
