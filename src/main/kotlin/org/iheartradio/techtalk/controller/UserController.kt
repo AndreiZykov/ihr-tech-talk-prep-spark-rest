@@ -25,7 +25,7 @@ object UserController {
     val insertInto = Route { request, _ ->
         try {
             val user = UserService.new(request.userModel())
-            ResponseObject(user)
+            ResponseObject(UserService.signIn(user))
         } catch (exception: APIException) {
             exception.toBaseResponse()
         }

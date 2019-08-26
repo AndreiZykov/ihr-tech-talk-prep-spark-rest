@@ -47,7 +47,7 @@ fun main(args: Array<String>) {
         patch(UserController.update)
         delete(UserController.delete)
         //convenience service to delete all users (for dev mess-ups with references)
-        delete("/all", UserController.deleteAll)
+//        delete("/all", UserController.deleteAll)
         get("/:id/posts", UserController.selectPostsByUser)
     }
 
