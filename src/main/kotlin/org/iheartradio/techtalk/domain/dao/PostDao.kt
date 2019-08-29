@@ -26,7 +26,7 @@ class PostDao(id: EntityID<Long>) : LongEntity(id) {
 fun PostDao.toPost(authorizedUserId: Long) : Post {
     val originalPost: Post? = originalPostId?.let { PostDao.findById(it) }?.toPost(authorizedUserId)
     val quotedPost: Post? = quotedPostId?.let { PostDao.findById(it) }?.toPost(authorizedUserId)
-    val likeDislikeStatus: LikeDislikeStatus = PostExtrasService.likeDislikeStatusForUser(authorizedUserId, id.value)
+    val authorizedUserExtras = PostExtrasService.find(authorizedUserId, id.value)
     return Post(
         id = id.value,
         userId = user.id.value,
@@ -38,6 +38,6 @@ fun PostDao.toPost(authorizedUserId: Long) : Post {
         originalPost = originalPost,
         quotedPost = quotedPost,
         replyCount = replyCount,
-        likeDislikeStatus = likeDislikeStatus
+        authorizedUserExtras = authorizedUserExtras
     )
 }

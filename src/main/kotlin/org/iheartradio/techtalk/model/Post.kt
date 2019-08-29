@@ -22,7 +22,7 @@ data class Post(
     var originalPost: Post? = null,
     var quotedPost: Post? = null,
     val replyCount: Int,
-    val likeDislikeStatus: LikeDislikeStatus = LikeDislikeStatus.Neutral
+    val authorizedUserExtras: PostExtras? = null
 ) : EntityModel {
     companion object {
         infix fun from(jsonString: String): Post = Gson().fromJson(jsonString, Post::class.java)
