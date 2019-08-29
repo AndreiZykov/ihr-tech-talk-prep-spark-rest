@@ -97,8 +97,9 @@ object PostController {
     val like = Route { request, _ ->
         val authorizedUserId = request.auth().authorizedUserId ?: 0
         val postId = request.params("id").toLong()
-        PostService.like(authorizedUserId, postId)
-        SuccessResponse()
+//        PostService.like(authorizedUserId, postId)
+        //SuccessResponse()
+        ResponseObject(PostService.like(authorizedUserId, postId))
     }
 
     val feed = Route { request, response ->

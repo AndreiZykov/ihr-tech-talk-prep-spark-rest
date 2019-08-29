@@ -166,39 +166,71 @@ object PostService {
         }
     }
 
-    fun like(userId: Long, postId: Long) {
-        transaction {
+//    fun like(userId: Long, postId: Long) {
+//        transaction {
+//
+//            val post = PostDao.findById(postId) ?: apiException(ErrorType.POST_NOT_FOUND)
+//
+//            val extras = PostExtrasService.find(userId, postId)
+//
+//            if (extras != null) { //recordExists
+//                PostExtrasDao.findById(extras.id)?.updateLike()
+//            } else {
+//                PostExtrasService.new(
+//                    PostExtras(
+//                        userId = userId,
+//                        postId = postId,
+//                        like = 1
+//                    )
+//                )
+//            }
+//
+//            val totalLikes = PostExtrasDao
+//                .find { PostExtrasTable.postId.eq(postId) and PostExtrasTable.like.greater(0) }
+//                .count()
+//
+//            val totalDislike = PostExtrasDao
+//                .find { PostExtrasTable.postId.eq(postId) and PostExtrasTable.like.less(0) }
+//                .count()
+//
+//            post.apply {
+//                likesRating = totalLikes - totalDislike
+//            }
+//        }
+//    }
 
-            val post = PostDao.findById(postId) ?: apiException(ErrorType.POST_NOT_FOUND)
 
-            val extras = PostExtrasService.find(userId, postId)
 
-            if (extras != null) { //recordExists
-                PostExtrasDao.findById(extras.id)?.updateLike()
-            } else {
-                PostExtrasService.new(
-                    PostExtras(
-                        userId = userId,
-                        postId = postId,
-                        like = 1
-                    )
+    fun like(userId: Long, postId: Long): Post =  transaction {
+
+        val post = PostDao.findById(postId) ?: apiException(ErrorType.POST_NOT_FOUND)
+
+        val extras = PostExtrasService.find(userId, postId)
+
+        if (extras != null) { //recordExists
+            PostExtrasDao.findById(extras.id)?.updateLike()
+        } else {
+            PostExtrasService.new(
+                PostExtras(
+                    userId = userId,
+                    postId = postId,
+                    like = 1
                 )
-            }
-
-            val totalLikes = PostExtrasDao
-                .find { PostExtrasTable.postId.eq(postId) and PostExtrasTable.like.greater(0) }
-                .count()
-
-            val totalDislike = PostExtrasDao
-                .find { PostExtrasTable.postId.eq(postId) and PostExtrasTable.like.less(0) }
-                .count()
-
-            post.apply {
-                likesRating = totalLikes - totalDislike
-            }
+            )
         }
-    }
 
+        val totalLikes = PostExtrasDao
+            .find { PostExtrasTable.postId.eq(postId) and PostExtrasTable.like.greater(0) }
+            .count()
+
+        val totalDislike = PostExtrasDao
+            .find { PostExtrasTable.postId.eq(postId) and PostExtrasTable.like.less(0) }
+            .count()
+
+        post.apply {
+            likesRating = totalLikes - totalDislike
+        }.toPost(userId)
+    }
 
     fun reply(
         replyToPostId: Long,
