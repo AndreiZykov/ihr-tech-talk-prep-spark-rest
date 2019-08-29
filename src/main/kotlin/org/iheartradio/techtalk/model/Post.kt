@@ -4,6 +4,12 @@ import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import org.joda.time.DateTime
 
+enum class LikeDislikeStatus {
+    Liked,
+    Disliked,
+    Neutral
+}
+
 data class Post(
     val id: Long = 0,
     val userId: Long,
@@ -16,7 +22,7 @@ data class Post(
     var originalPost: Post? = null,
     var quotedPost: Post? = null,
     val replyCount: Int,
-    val isLikedByMe: Boolean = false
+    val likeDislikeStatus: LikeDislikeStatus = LikeDislikeStatus.Neutral
 ) : EntityModel {
     companion object {
         infix fun from(jsonString: String): Post = Gson().fromJson(jsonString, Post::class.java)

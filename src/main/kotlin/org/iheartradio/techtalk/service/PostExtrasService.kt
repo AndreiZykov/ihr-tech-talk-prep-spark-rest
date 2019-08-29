@@ -2,6 +2,7 @@ package org.iheartradio.techtalk.service
 
 import org.iheartradio.techtalk.domain.dao.*
 import org.iheartradio.techtalk.domain.entity.PostExtrasTable
+import org.iheartradio.techtalk.model.LikeDislikeStatus
 import org.iheartradio.techtalk.model.PostExtras
 import org.iheartradio.techtalk.utils.ErrorType
 import org.iheartradio.techtalk.utils.apiException
@@ -40,6 +41,15 @@ object PostExtrasService {
             .isNotEmpty()
     }
 
-    fun isLikedByUser(userId: Long,
-                      postId: Long) = find(userId, postId)?.like?:0 > 0
+    fun likeDislikeStatusForUser(
+        userId: Long,
+        postId: Long
+    ): LikeDislikeStatus {
+        val post = find(userId, postId) ?: return LikeDislikeStatus.Neutral
+        return when {
+            post.like > 0 -> LikeDislikeStatus.Liked
+            post.dislike < 0 -> LikeDislikeStatus.Disliked
+            else -> LikeDislikeStatus.Neutral
+        }
+    }
 }
