@@ -135,6 +135,8 @@ object PostService {
     fun dislike(userId: Long, postId: Long) {
         transaction {
 
+            val post = PostDao.findById(postId) ?: apiException(ErrorType.POST_NOT_FOUND)
+
             val extras = PostExtrasService.find(userId, postId)
 
             if (extras != null) { //recordExists
@@ -158,7 +160,7 @@ object PostService {
                 .find { PostExtrasTable.postId.eq(postId) and PostExtrasTable.like.less(0) }
                 .count()
 
-            PostDao.findById(postId)?.apply {
+            post.apply {
                 likesRating = totalLikes - totalDislike
             }
         }
@@ -166,6 +168,8 @@ object PostService {
 
     fun like(userId: Long, postId: Long) {
         transaction {
+
+            val post = PostDao.findById(postId) ?: apiException(ErrorType.POST_NOT_FOUND)
 
             val extras = PostExtrasService.find(userId, postId)
 
@@ -189,7 +193,7 @@ object PostService {
                 .find { PostExtrasTable.postId.eq(postId) and PostExtrasTable.like.less(0) }
                 .count()
 
-            PostDao.findById(postId)?.apply {
+            post.apply {
                 likesRating = totalLikes - totalDislike
             }
         }
