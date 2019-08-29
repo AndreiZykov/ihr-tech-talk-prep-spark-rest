@@ -9,15 +9,15 @@ import org.jetbrains.exposed.dao.LongEntityClass
 class PostExtrasDao(id: EntityID<Long>) : LongEntity(id) {
     var userId by PostExtrasTable.userId
     var postId by PostExtrasTable.postId
-    var like by PostExtrasTable.like
+    var rating by PostExtrasTable.like
     var repost by PostExtrasTable.repost
 
     fun updateLike() {
-        like = if(like <= 0) 1 else 0
+        rating = if(rating <= 0) 1 else 0
     }
 
     fun updateDislike() {
-        like = if(like >= 0) -1 else 0
+        rating = if(rating >= 0) -1 else 0
     }
 
     fun updateRepost() {
@@ -31,6 +31,6 @@ fun PostExtrasDao.toPostExtra() = PostExtras(
     id = id.value,
     userId = userId,
     postId = postId,
-    like = like,
+    rating = rating,
     repost = repost
 )

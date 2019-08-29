@@ -90,8 +90,9 @@ object PostController {
     val dislike = Route { request, _ ->
         val authorizedUserId = request.auth().authorizedUserId ?: 0
         val postId = request.params("id").toLong()
-        PostService.dislike(authorizedUserId, postId)
-        SuccessResponse()
+//        PostService.dislike(authorizedUserId, postId)
+//        SuccessResponse()
+        ResponseObject(PostService.dislike(authorizedUserId, postId))
     }
 
     val like = Route { request, _ ->

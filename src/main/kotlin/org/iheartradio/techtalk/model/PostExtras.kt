@@ -6,8 +6,7 @@ data class PostExtras(
     val id: Long = 0,
     val userId: Long,
     val postId: Long,
-    val like: Int = 0,
-    val dislike: Int = 0,
+    val rating: Int = 0,
     val repost: Int = 0
 ) : EntityModel {
     companion object {

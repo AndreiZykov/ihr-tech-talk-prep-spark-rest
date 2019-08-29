@@ -18,7 +18,7 @@ object PostExtrasService {
         PostExtrasDao.new {
             userId = extras.userId
             postId = extras.postId
-            like = extras.like
+            rating = extras.rating
             repost = extras.repost
         }.toPostExtra()
     }
@@ -47,8 +47,8 @@ object PostExtrasService {
     ): LikeDislikeStatus {
         val post = find(userId, postId) ?: return LikeDislikeStatus.Neutral
         return when {
-            post.like > 0 -> LikeDislikeStatus.Liked
-            post.dislike < 0 -> LikeDislikeStatus.Disliked
+            post.rating > 0 -> LikeDislikeStatus.Liked
+            post.rating < 0 -> LikeDislikeStatus.Disliked
             else -> LikeDislikeStatus.Neutral
         }
     }

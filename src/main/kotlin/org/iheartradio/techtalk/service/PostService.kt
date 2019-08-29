@@ -132,38 +132,37 @@ object PostService {
         }.toPost(localUser.id.value)
     }
 
-    fun dislike(userId: Long, postId: Long) {
-        transaction {
+    fun dislike(userId: Long, postId: Long): Post = transaction {
 
-            val post = PostDao.findById(postId) ?: apiException(ErrorType.POST_NOT_FOUND)
+        val post = PostDao.findById(postId) ?: apiException(ErrorType.POST_NOT_FOUND)
 
-            val extras = PostExtrasService.find(userId, postId)
+        val extras = PostExtrasService.find(userId, postId)
 
-            if (extras != null) { //recordExists
-                PostExtrasDao.findById(extras.id)?.updateDislike()
-            } else {
-                PostExtrasService.new(
-                    PostExtras(
-                        userId = userId,
-                        postId = postId,
-                        like = -1
-                    )
+        if (extras != null) { //recordExists
+            PostExtrasDao.findById(extras.id)?.updateDislike()
+        } else {
+            PostExtrasService.new(
+                PostExtras(
+                    userId = userId,
+                    postId = postId,
+                    rating = -1
                 )
-            }
-
-            val totalLikes = PostExtrasDao
-//                .find { PostExtrasTable.userId.eq(userId) and PostExtrasTable.like.greater(0) }
-                .find { PostExtrasTable.postId.eq(postId) and PostExtrasTable.like.greater(0) }
-                .count()
-
-            val totalDislike = PostExtrasDao
-                .find { PostExtrasTable.postId.eq(postId) and PostExtrasTable.like.less(0) }
-                .count()
-
-            post.apply {
-                likesRating = totalLikes - totalDislike
-            }
+            )
         }
+
+        val totalLikes = PostExtrasDao
+//                .find { PostExtrasTable.userId.eq(userId) and PostExtrasTable.like.greater(0) }
+            .find { PostExtrasTable.postId.eq(postId) and PostExtrasTable.like.greater(0) }
+            .count()
+
+        val totalDislike = PostExtrasDao
+            .find { PostExtrasTable.postId.eq(postId) and PostExtrasTable.like.less(0) }
+            .count()
+
+        post.apply {
+            likesRating = totalLikes - totalDislike
+
+        }.toPost(userId)
     }
 
 //    fun like(userId: Long, postId: Long) {
@@ -214,7 +213,7 @@ object PostService {
                 PostExtras(
                     userId = userId,
                     postId = postId,
-                    like = 1
+                    rating = 1
                 )
             )
         }
