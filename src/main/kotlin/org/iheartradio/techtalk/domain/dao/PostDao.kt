@@ -2,6 +2,7 @@ package org.iheartradio.techtalk.domain.dao
 
 import org.iheartradio.techtalk.domain.entity.PostsTable
 import org.iheartradio.techtalk.model.Post
+import org.iheartradio.techtalk.service.PostExtrasService
 import org.jetbrains.exposed.dao.EntityID
 import org.jetbrains.exposed.dao.LongEntity
 import org.jetbrains.exposed.dao.LongEntityClass
@@ -21,10 +22,10 @@ class PostDao(id: EntityID<Long>) : LongEntity(id) {
 
 
 
-fun PostDao.toPost() : Post {
-//    val originalPost: Post? = if(originalPostId != null) PostDao.findById(originalPostId!!)?.toPost() else null
-    val originalPost: Post? = originalPostId?.let { PostDao.findById(it) }?.toPost()
-    val quotedPost: Post? = quotedPostId?.let { PostDao.findById(it) }?.toPost()
+fun PostDao.toPost(authorizedUserId: Long) : Post {
+    val originalPost: Post? = originalPostId?.let { PostDao.findById(it) }?.toPost(authorizedUserId)
+    val quotedPost: Post? = quotedPostId?.let { PostDao.findById(it) }?.toPost(authorizedUserId)
+    val isLikedByMe: Boolean = PostExtrasService.isLikedByUser(authorizedUserId, id.value)
     return Post(
         id = id.value,
         userId = user.id.value,
@@ -35,6 +36,7 @@ fun PostDao.toPost() : Post {
         repostCount = repostCount,
         originalPost = originalPost,
         quotedPost = quotedPost,
-        replyCount = replyCount
+        replyCount = replyCount,
+        isLikedByMe = isLikedByMe
     )
 }

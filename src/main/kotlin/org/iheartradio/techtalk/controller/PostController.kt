@@ -23,11 +23,12 @@ import spark.Route
 object PostController {
 
     val selectById = Route { request, _ ->
+        val authorizedUserId = request.auth().authorizedUserId!!
         val postId = request.params("id").toLong()
         //TODO: Removing paging from this call. We will be fetching the replies with another endpoint/call
         val page: Int = request.queryMap("page").integerValue() ?: 1
         val post = transaction {
-            PostDao.findById(postId)?.toPost()
+            PostDao.findById(postId)?.toPost(authorizedUserId)
         }
         post?.toJson()
     }
@@ -102,8 +103,10 @@ object PostController {
 
     val feed = Route { request, response ->
         return@Route try {
+            val authorizedUserId = request.auth().authorizedUserId ?: 0
+            println("DEBUG:: FETCHING FEED FOR USER $authorizedUserId")
             val page: Int = request.queryMap("page").integerValue() ?: 1
-            ResponseList(PostService.fetchFeed(page))
+            ResponseList(PostService.fetchFeed(authorizedUserId, page))
         } catch (exception: APIException) {
             exception.toBaseResponse()
         }

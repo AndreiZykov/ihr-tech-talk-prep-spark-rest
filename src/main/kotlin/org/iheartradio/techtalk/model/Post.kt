@@ -15,7 +15,8 @@ data class Post(
     //post this was re-posted from
     var originalPost: Post? = null,
     var quotedPost: Post? = null,
-    val replyCount: Int
+    val replyCount: Int,
+    val isLikedByMe: Boolean = false
 ) : EntityModel {
     companion object {
         infix fun from(jsonString: String): Post = Gson().fromJson(jsonString, Post::class.java)

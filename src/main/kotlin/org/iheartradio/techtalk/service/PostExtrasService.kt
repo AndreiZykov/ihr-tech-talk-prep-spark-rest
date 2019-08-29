@@ -11,7 +11,7 @@ import org.jetbrains.exposed.sql.transactions.transaction
 
 object PostExtrasService {
 
-    fun new(extras: PostExtras) : PostExtras = transaction {
+    fun new(extras: PostExtras): PostExtras = transaction {
         UserDao.findById(extras.userId) ?: apiException(ErrorType.USER_NOT_FOUND)
         PostDao.findById(extras.postId) ?: apiException(ErrorType.POST_NOT_FOUND)
         PostExtrasDao.new {
@@ -26,15 +26,20 @@ object PostExtrasService {
     fun all(): List<PostExtras> = transaction { PostExtrasDao.all().map { it.toPostExtra() } }
 
 
-    fun find(userId: Long, postId: Long): PostExtras?  = transaction {
+    fun find(userId: Long, postId: Long): PostExtras? = transaction {
         PostExtrasDao.find { PostExtrasTable.userId.eq(userId) and PostExtrasTable.postId.eq(postId) }
             .firstOrNull()
             ?.toPostExtra()
     }
 
-    fun doExtrasExist(userId: Long,
-                      postId: Long): Boolean  = transaction {
+    fun doExtrasExist(
+        userId: Long,
+        postId: Long
+    ): Boolean = transaction {
         PostExtrasDao.find { PostExtrasTable.userId.eq(userId) and PostExtrasTable.postId.eq(postId) }
             .isNotEmpty()
     }
+
+    fun isLikedByUser(userId: Long,
+                      postId: Long) = find(userId, postId)?.like?:0 > 0
 }

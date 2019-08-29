@@ -25,7 +25,7 @@ object PostService {
             likesRating = 0
             repostCount = 0
             originalPostId = post.originalPost?.id
-        }.toPost()
+        }.toPost(localUser.id.value)
     }
 
 
@@ -73,7 +73,7 @@ object PostService {
 
     fun repost(localUserId: Long, originalPostId: Long): Post = transaction {
         val localUser = UserDao.findById(localUserId) ?: throw APIException(ErrorType.USER_NOT_FOUND)
-        val originalPost: Post = PostDao.findById(originalPostId)?.toPost() ?: apiException(ErrorType.POST_NOT_FOUND)
+        val originalPost: Post = PostDao.findById(originalPostId)?.toPost(localUser.id.value) ?: apiException(ErrorType.POST_NOT_FOUND)
 //        val alreadyReposted = PostDao.find {
 //            PostsTable.originalPostId.eq(originalPostId) and PostsTable.user.eq(localUserId)
 //        }.count() > 0
@@ -85,7 +85,7 @@ object PostService {
             likesRating = 0
             repostCount = 0
             this.originalPostId = originalPost.id
-        }.toPost()
+        }.toPost(localUser.id.value)
 
         val extras = PostExtrasService.find(localUserId, originalPost.id)
 
@@ -121,7 +121,7 @@ object PostService {
 
     fun quote(post: Post, quotedPostId: Long): Post = transaction {
         val localUser = UserDao.findById(post.userId) ?: throw APIException(ErrorType.USER_NOT_FOUND)
-        val quotedPost: Post = PostDao.findById(quotedPostId)?.toPost() ?: apiException(ErrorType.POST_NOT_FOUND)
+        val quotedPost: Post = PostDao.findById(quotedPostId)?.toPost(localUser.id.value) ?: apiException(ErrorType.POST_NOT_FOUND)
         PostDao.new {
             user = localUser
             body = post.body
@@ -129,7 +129,7 @@ object PostService {
             likesRating = 0
             repostCount = 0
             this.quotedPostId = quotedPost.id
-        }.toPost()
+        }.toPost(localUser.id.value)
     }
 
     fun dislike(userId: Long, postId: Long) {
@@ -232,23 +232,25 @@ object PostService {
             replyCount = mainPostReplyCount
         }
 
-        newReply.toPost()
+        newReply.toPost(localUser.id.value)
     }
 
-    fun allByUserId(userId: Long): List<Post> {
+    fun allByUserId(localUserId: Long): List<Post> {
         return transaction {
-            val localUser = UserDao.findById(userId) ?: throw APIException(ErrorType.USER_NOT_FOUND)
-            localUser.posts.map { it.toPost() }
+            val localUser = UserDao.findById(localUserId) ?: throw APIException(ErrorType.USER_NOT_FOUND)
+            localUser.posts.map { it.toPost(localUser.id.value) }
         }
     }
 
 
-    fun fetchFeed(page : Int = 1,
+    fun fetchFeed(localUserId: Long,
+                  page : Int = 1,
                   pageItemCount: Int = 10) = transaction {
+        println("DEBUG:: fetchFeed called for $localUserId")
         PostDao.all()
             .orderBy(PostsTable.date to SortOrder.DESC)
             .paginate(page, pageItemCount)
-            .map { it.toPost() }
+            .map { it.toPost(localUserId) }
     }
 
 
