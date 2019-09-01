@@ -90,11 +90,11 @@ object PostService {
         val extras = PostExtrasService.find(localUserId, originalPost.id)
 
         if (extras != null) {
-//            PostExtrasDao.findById(extras.id)?.updateRepost()
+            PostExtrasDao.findById(extras.id)?.updateRepost()
 
-            PostExtrasDao.findById(extras.id)?.apply {
-                repost = if(repost > 0) 0 else 1
-            }
+//            PostExtrasDao.findById(extras.id)?.apply {
+//                repost = if(repost > 0) 0 else 1
+//            }
 
         } else {
             PostExtrasService.new(
@@ -111,7 +111,7 @@ object PostService {
             .count()
 
 
-        PostDao.findById(originalPost.userId)?.apply {
+        PostDao.findById(originalPost.id)?.apply {
             repostCount = totalReposts
         }
 
