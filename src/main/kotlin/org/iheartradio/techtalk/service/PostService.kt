@@ -1,5 +1,6 @@
 package org.iheartradio.techtalk.service
 
+import org.iheartradio.techtalk.controller.deleteAll
 import org.iheartradio.techtalk.domain.dao.*
 import org.iheartradio.techtalk.domain.entity.PostExtrasTable
 import org.iheartradio.techtalk.domain.entity.PostsTable
@@ -71,30 +72,53 @@ object PostService {
 //    }
 
 
-    fun repost(localUserId: Long, originalPostId: Long): Post = transaction {
+    fun repost(localUserId: Long, originalPostId: Long): Post? = transaction {
         val localUser = UserDao.findById(localUserId) ?: throw APIException(ErrorType.USER_NOT_FOUND)
         val originalPost: Post = PostDao.findById(originalPostId)?.toPost(localUser.id.value) ?: apiException(ErrorType.POST_NOT_FOUND)
 //        val alreadyReposted = PostDao.find {
 //            PostsTable.originalPostId.eq(originalPostId) and PostsTable.user.eq(localUserId)
 //        }.count() > 0
 
-        val newPost = PostDao.new {
-            user = localUser
-            body = originalPost.body
-            date = DateTime()
-            likesRating = 0
-            repostCount = 0
-            this.originalPostId = originalPost.id
-        }.toPost(localUser.id.value)
+
+
+
+//        val newPost = PostDao.new {
+//            user = localUser
+//            body = originalPost.body
+//            date = DateTime()
+//            likesRating = 0
+//            repostCount = 0
+//            this.originalPostId = originalPost.id
+//        }.toPost(localUser.id.value)
+
+        var newPost: Post? = null
 
         val extras = PostExtrasService.find(localUserId, originalPost.id)
 
         if (extras != null) {
-            PostExtrasDao.findById(extras.id)?.updateRepost()
+//            PostExtrasDao.findById(extras.id)?.updateRepost()
 
-//            PostExtrasDao.findById(extras.id)?.apply {
-//                repost = if(repost > 0) 0 else 1
-//            }
+            val updatedExtras = PostExtrasDao.findById(extras.id)?.apply {
+                repost = if(repost > 0) 0 else 1
+            }
+
+            if(updatedExtras?.repost == 1) {
+                //insert new post with original post details
+                newPost  = PostDao.new {
+                    user = localUser
+                    body = originalPost.body
+                    date = DateTime()
+                    likesRating = 0
+                    repostCount = 0
+                    this.originalPostId = originalPost.id
+                }.toPost(localUser.id.value)
+            } else {
+                //delete the re-posted post
+                PostDao
+                    .find { PostsTable.originalPostId.eq(originalPost.id) and  PostsTable.user.eq(localUser.id) }
+                    .firstOrNull()
+                    ?.delete()
+            }
 
         } else {
             PostExtrasService.new(
