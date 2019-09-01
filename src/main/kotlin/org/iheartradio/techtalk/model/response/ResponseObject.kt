@@ -9,7 +9,7 @@ class SuccessResponse(val success: Boolean = true) : BaseResponse() {
     override fun toString(): String = GsonBuilder().setPrettyPrinting().create().toJson(this)
 }
 
-class ResponseObject<out T: EntityModel>(@SerializedName("response_object") val model: T)
+class ResponseObject<out T: EntityModel>(@SerializedName("response_object") val model: T?)
     : BaseResponse() {
     override fun toString(): String = GsonBuilder().setPrettyPrinting().create().toJson(this)
 }

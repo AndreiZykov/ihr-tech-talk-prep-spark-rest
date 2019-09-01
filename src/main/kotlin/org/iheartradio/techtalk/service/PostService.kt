@@ -116,8 +116,11 @@ object PostService {
                 //delete the re-posted post
                 PostDao
                     .find { PostsTable.originalPostId.eq(originalPost.id) and  PostsTable.user.eq(localUser.id) }
-                    .firstOrNull()
-                    ?.delete()
+                    .deleteAll()
+//                    .firstOrNull()
+//                    ?.delete()
+
+
             }
 
         } else {
