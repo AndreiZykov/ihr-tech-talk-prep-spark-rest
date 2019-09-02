@@ -26,6 +26,7 @@ const val LIKE = "like"
 const val DISLIKE = "dislike"
 const val REPOST = "repost"
 const val QUOTE = "quote"
+const val REPLIES = "replies"
 
 fun main(args: Array<String>) {
 
@@ -59,6 +60,7 @@ fun main(args: Array<String>) {
         post("/:id/$DISLIKE", PostController.dislike)
         post("/:id/$REPOST", PostController.repost)
         post("/:id/$QUOTE", PostController.quote)
+        get("/:id/$REPLIES", PostController.replies)
     }
 
 

@@ -316,4 +316,35 @@ object PostService {
     }
 
 
+
+
+    fun fetchReplies(localUserId: Long,
+                     postId: Long,
+                     page : Int = 1,
+                     pageItemCount: Int = 10) = transaction {
+        println("DEBUG:: fetchFeed called for $localUserId")
+
+//        PostDao
+//            .find {
+//            RepliesTable.replyPostId.eq(PostsTable.id) and  RepliesTable.postId.eq(postId)//PostsTable.id.eq(postId)
+//        }
+//            .orderBy(PostsTable.date to SortOrder.DESC)
+//            .paginate(page, pageItemCount)
+//            .map { it.toPost(localUserId) }
+
+
+
+
+        val replyIds = RepliesDao.
+            find { RepliesTable.postId.eq(postId) }
+            .map { it.replyPostId }
+            .toList()
+
+        PostDao.forIds(replyIds)
+            .orderBy(PostsTable.date to SortOrder.DESC)
+            .paginate(page, pageItemCount)
+            .map { it.toPost(localUserId) }
+
+
+    }
 }

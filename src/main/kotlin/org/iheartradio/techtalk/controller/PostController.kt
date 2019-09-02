@@ -115,6 +115,25 @@ object PostController {
     }
 
 
+    val replies = Route { request, response ->
+        return@Route try {
+            val authorizedUserId = request.auth().authorizedUserId ?: 0
+            val postId = request.params("id").toLong()
+            println("DEBUG:: FETCHING REPLIES FOR postId $postId")
+            val page: Int = request.queryMap("page").integerValue() ?: 1
+            ResponseList(
+                PostService.fetchReplies(
+                    localUserId = authorizedUserId,
+                    postId = postId,
+                    page = page
+                )
+            )
+        } catch (exception: APIException) {
+            exception.toBaseResponse()
+        }
+    }
+
+
 //    val insertRepost = Route { request, _ ->
 //        val originalPostId = request.params("id").toLong()
 //        val post = request.postModel().apply {
@@ -129,8 +148,6 @@ object PostController {
 //            .takeIf { request.auth().authorizedUserId == post.userId }
 //            ?: BaseResponse.of(ErrorType.FORBIDDEN)
 //    }
-
-
 
 
 }
