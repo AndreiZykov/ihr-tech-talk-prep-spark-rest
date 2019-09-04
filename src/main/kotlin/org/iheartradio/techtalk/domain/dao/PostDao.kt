@@ -17,7 +17,7 @@ class PostDao(id: EntityID<Long>) : LongEntity(id) {
     var replyCount by PostsTable.replyCount
     var originalPostId by PostsTable.originalPostId
     var quotedPostId by PostsTable.quotedPostId
-
+    var repliedPostId by PostsTable.repliedPostId
     companion object : LongEntityClass<PostDao>(PostsTable)
 }
 

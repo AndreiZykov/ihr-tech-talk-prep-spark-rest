@@ -19,5 +19,7 @@ object PostsTable : LongIdTable() {
     val originalPostId = long("ORIGINAL_POST_ID").nullable()
     //the post that this post was quoted from
     val quotedPostId = long("QUOTED_POST_ID").nullable()
+    //the post id that this post is reply to, temp solution
+    val repliedPostId = long("REPLIED_POST_ID").nullable()
 }
 

@@ -276,6 +276,7 @@ object PostService {
             likesRating = 0
             repostCount = 0
             originalPostId = null
+            repliedPostId = replyToPostId
         }
 
         //Insert new child relation record
@@ -309,7 +310,7 @@ object PostService {
                   page : Int = 1,
                   pageItemCount: Int = 10) = transaction {
         println("DEBUG:: fetchFeed called for $localUserId")
-        PostDao.find { PostsTable.originalPostId.isNull() }
+        PostDao.find { PostsTable.repliedPostId.isNull() }
             .orderBy(PostsTable.date to SortOrder.DESC)
             .paginate(page, pageItemCount)
             .map { it.toPost(localUserId) }
