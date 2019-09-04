@@ -309,7 +309,7 @@ object PostService {
                   page : Int = 1,
                   pageItemCount: Int = 10) = transaction {
         println("DEBUG:: fetchFeed called for $localUserId")
-        PostDao.all()
+        PostDao.find { PostsTable.originalPostId.isNull() }
             .orderBy(PostsTable.date to SortOrder.DESC)
             .paginate(page, pageItemCount)
             .map { it.toPost(localUserId) }

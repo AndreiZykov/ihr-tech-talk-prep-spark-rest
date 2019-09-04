@@ -1,21 +1,17 @@
 package org.iheartradio.techtalk.controller
 
-import org.iheartradio.techtalk.domain.dao.*
-import org.iheartradio.techtalk.domain.entity.PostsTable
-import org.iheartradio.techtalk.model.Post
+import org.iheartradio.techtalk.domain.dao.PostDao
+import org.iheartradio.techtalk.domain.dao.toPost
 import org.iheartradio.techtalk.model.response.BaseResponse
 import org.iheartradio.techtalk.model.response.ResponseList
 import org.iheartradio.techtalk.model.response.ResponseObject
-import org.iheartradio.techtalk.model.response.SuccessResponse
 import org.iheartradio.techtalk.service.PostService
 import org.iheartradio.techtalk.sparkutils.auth
 import org.iheartradio.techtalk.sparkutils.postModel
 import org.iheartradio.techtalk.utils.APIException
 import org.iheartradio.techtalk.utils.ErrorType
-import org.iheartradio.techtalk.utils.apiException
-import org.iheartradio.techtalk.utils.toBaseResponse
 import org.iheartradio.techtalk.utils.extensions.toJson
-import org.jetbrains.exposed.sql.and
+import org.iheartradio.techtalk.utils.toBaseResponse
 import org.jetbrains.exposed.sql.transactions.transaction
 import spark.Route
 
