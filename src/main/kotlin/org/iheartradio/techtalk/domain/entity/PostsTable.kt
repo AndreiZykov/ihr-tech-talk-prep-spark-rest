@@ -21,5 +21,13 @@ object PostsTable : LongIdTable() {
     val quotedPostId = long("QUOTED_POST_ID").nullable()
     //the post id that this post is reply to, temp solution
     val repliedPostId = long("REPLIED_POST_ID").nullable()
+
+    val geoLatitude = decimal(name = "GEO_LATITUDE",
+        precision = Int.MAX_VALUE,
+        scale = Int.MAX_VALUE)
+
+    val geoLongitude = decimal(name = "GEO_LONGITUDE",
+        precision = Int.MAX_VALUE,
+        scale = Int.MAX_VALUE)
 }
 

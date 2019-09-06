@@ -1,6 +1,7 @@
 package org.iheartradio.techtalk.domain.dao
 
 import org.iheartradio.techtalk.domain.entity.PostsTable
+import org.iheartradio.techtalk.model.LatLng
 import org.iheartradio.techtalk.model.LikeDislikeStatus
 import org.iheartradio.techtalk.model.Post
 import org.iheartradio.techtalk.service.PostExtrasService
@@ -18,12 +19,14 @@ class PostDao(id: EntityID<Long>) : LongEntity(id) {
     var originalPostId by PostsTable.originalPostId
     var quotedPostId by PostsTable.quotedPostId
     var repliedPostId by PostsTable.repliedPostId
+    var geoLatitude by PostsTable.geoLatitude
+    var geoLongitude by PostsTable.geoLongitude
+
     companion object : LongEntityClass<PostDao>(PostsTable)
 }
 
 
-
-fun PostDao.toPost(authorizedUserId: Long) : Post {
+fun PostDao.toPost(authorizedUserId: Long): Post {
     val originalPost: Post? = originalPostId?.let { PostDao.findById(it) }?.toPost(authorizedUserId)
     val quotedPost: Post? = quotedPostId?.let { PostDao.findById(it) }?.toPost(authorizedUserId)
     val authorizedUserExtras = PostExtrasService.find(authorizedUserId, id.value)
@@ -38,6 +41,10 @@ fun PostDao.toPost(authorizedUserId: Long) : Post {
         originalPost = originalPost,
         quotedPost = quotedPost,
         replyCount = replyCount,
-        authorizedUserExtras = authorizedUserExtras
+        authorizedUserExtras = authorizedUserExtras,
+        latLng = LatLng(
+            latitude = geoLatitude.toDouble(),
+            longitude = geoLongitude.toDouble()
+        )
     )
 }
