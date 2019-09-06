@@ -26,6 +26,8 @@ object PostService {
             likesRating = 0
             repostCount = 0
             originalPostId = post.originalPost?.id
+            geoLatitude = post.latLng.latitude.toBigDecimal()
+            geoLongitude = post.latLng.longitude.toBigDecimal()
         }.toPost(localUser.id.value)
     }
 
