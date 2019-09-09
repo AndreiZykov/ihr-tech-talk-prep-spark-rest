@@ -7,16 +7,14 @@ import org.iheartradio.techtalk.domain.dao.*
 import org.iheartradio.techtalk.domain.entity.PostExtrasTable
 import org.iheartradio.techtalk.domain.entity.PostsTable
 import org.iheartradio.techtalk.domain.entity.RepliesTable
-import org.iheartradio.techtalk.model.DistanceUnits
-import org.iheartradio.techtalk.model.LatLng
-import org.iheartradio.techtalk.model.PostExtras
-import org.iheartradio.techtalk.model.Post
+import org.iheartradio.techtalk.model.*
 import org.iheartradio.techtalk.utils.APIException
 import org.iheartradio.techtalk.utils.ErrorType
 import org.iheartradio.techtalk.utils.apiException
 import org.iheartradio.techtalk.utils.extensions.execAndMap
 import org.iheartradio.techtalk.utils.extensions.paginate
 import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.lessEq
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.joda.time.DateTime
 import java.math.BigDecimal
@@ -315,37 +313,31 @@ object PostService {
 
     fun fetchFeed(
         localUserId: Long,
-        localUserLocation: LatLng,
+        fetchByLocationParams: FetchByLocation,
         page: Int = 1,
         pageItemCount: Int = 10
     ) = transaction {
         println("DEBUG:: fetchFeed called for $localUserId")
 
-
-//        val p = PostsTable
-//            .slice(PostsTable.id,
-//                DistanceOp(
-//                    PostsTable.geoLatitude,
-//                    PostsTable.geoLongitude,
-//                    localUserLocation.latitude,
-//                    localUserLocation.longitude,
-//                    PostsTable.geoLatitude.columnType)
-//                )
-//            .select { PostsTable.repliedPostId.isNull() }
-//            .orderByDistance(localUserLocation)
+//        PostDao.find{ PostsTable.repliedPostId.isNull()  }
+//            .orderBy(PostsTable.date to SortOrder.DESC)
 //            .paginate(page, pageItemCount)
-//            .mapLazy {
-//                Post(id = it[PostsTable.id].value,
-//                    body = it[PostsTable.body],
-//                    userId = it[PostsTable.user].value,
-//                    userName = it[PostsTable.user].ta
-//                )
-//            }
-            //.map { it.toPost(localUserId) }
+//            .map { it.toPost(localUserId, localUserLocation) }
 
+        val localUserLocation = LatLng(fetchByLocationParams.latitude, fetchByLocationParams.longitude)
 
-        PostDao.find { PostsTable.repliedPostId.isNull() }
-            .orderByDistance(localUserLocation)
+        val distanceOp = DistanceOp(
+            PostsTable.geoLatitude,
+            PostsTable.geoLongitude,
+            localUserLocation.latitude,
+            localUserLocation.longitude,
+            PostsTable.geoLatitude.columnType
+        )
+        val radius = BigDecimal(fetchByLocationParams.radius)
+
+        //Return all posts that ARE NOT Replies and Distance from user LessThan
+        PostDao.find { PostsTable.repliedPostId.isNull() and distanceOp.lessEq(radius) }
+            .orderPosts(distanceOp)
             .paginate(page, pageItemCount)
             .map { it.toPost(localUserId, localUserLocation) }
 
@@ -417,7 +409,14 @@ class DistanceOp<T, S : T>(
     private val distUnits: DistanceUnits = DistanceUnits.Kilometers
 ) : ExpressionWithColumnType<T>() {
     override fun toSQL(queryBuilder: QueryBuilder) =
-        "${DbFunctions.FUNCTION_CALC_DIST}(${lat1.toSQL(queryBuilder)},${long1.toSQL(queryBuilder)},$lat2,$long2,'$distUnits')"
+        "${DbFunctions.FUNCTION_CALC_DIST}(${lat1.toSQL(queryBuilder)},${long1.toSQL(queryBuilder)},$lat2,$long2,'${distUnits.abbrv}')"
+//            .also {
+//               transaction {
+//                   SQLStatement("SELECT id, $it as dist FROM POSTS;").execAndMap { rs ->
+//                       println("PostID = ${rs.getLong("id")}, dist= ${rs.getFloat("dist")}")
+//                   }
+//               }
+//            }
 }
 
 fun SizedIterable<PostDao>.orderByDistance(userLatLng: LatLng): SizedIterable<PostDao> {
@@ -432,7 +431,13 @@ fun SizedIterable<PostDao>.orderByDistance(userLatLng: LatLng): SizedIterable<Po
 }
 
 
-fun Query.orderByDistance(userLatLng: LatLng) : Query {
+fun SizedIterable<PostDao>.orderPosts(distanceOp: DistanceOp<BigDecimal, BigDecimal>) =
+    orderBy(distanceOp to SortOrder.ASC, PostsTable.date to SortOrder.DESC)
+
+fun SizedIterable<PostDao>.orderByDistance(distanceOp: DistanceOp<BigDecimal, BigDecimal>) =
+    orderBy(distanceOp to SortOrder.ASC)
+
+fun Query.orderByDistance(userLatLng: LatLng): Query {
     val orderBy = DistanceOp(
         PostsTable.geoLatitude,
         PostsTable.geoLongitude,

@@ -35,6 +35,7 @@ fun Request.postModel(): Post = Post from body()
 fun Request.commentModel(): Comment = Comment from body()
 fun Request.commentExtrasModel(): PostExtras = PostExtras from body()
 fun Request.latLngModel(): LatLng =  LatLng from body()
+fun Request.fetchByLocationBody(): FetchByLocation =  FetchByLocation from body()
 
 
 fun get(route: Route) { get("", route)  }
