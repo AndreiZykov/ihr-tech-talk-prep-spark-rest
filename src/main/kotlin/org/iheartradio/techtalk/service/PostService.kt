@@ -320,11 +320,35 @@ object PostService {
         pageItemCount: Int = 10
     ) = transaction {
         println("DEBUG:: fetchFeed called for $localUserId")
-        //TODO: Change to pass user location over in request body
+
+
+//        val p = PostsTable
+//            .slice(PostsTable.id,
+//                DistanceOp(
+//                    PostsTable.geoLatitude,
+//                    PostsTable.geoLongitude,
+//                    localUserLocation.latitude,
+//                    localUserLocation.longitude,
+//                    PostsTable.geoLatitude.columnType)
+//                )
+//            .select { PostsTable.repliedPostId.isNull() }
+//            .orderByDistance(localUserLocation)
+//            .paginate(page, pageItemCount)
+//            .mapLazy {
+//                Post(id = it[PostsTable.id].value,
+//                    body = it[PostsTable.body],
+//                    userId = it[PostsTable.user].value,
+//                    userName = it[PostsTable.user].ta
+//                )
+//            }
+            //.map { it.toPost(localUserId) }
+
+
         PostDao.find { PostsTable.repliedPostId.isNull() }
             .orderByDistance(localUserLocation)
             .paginate(page, pageItemCount)
-            .map { it.toPost(localUserId) }
+            .map { it.toPost(localUserId, localUserLocation) }
+
     }
 
 
@@ -335,19 +359,6 @@ object PostService {
         pageItemCount: Int = 10
     ) = transaction {
         println("DEBUG:: fetchFeed called for $localUserId")
-
-//        PostDao
-//        val num: Float = 10.toFloat()
-//        num.pow(7)
-
-
-//            .find {
-//            RepliesTable.replyPostId.eq(PostsTable.id) and  RepliesTable.postId.eq(postId)//PostsTable.id.eq(postId)
-//        }
-//            .orderBy(PostsTable.date to SortOrder.DESC)
-//            .paginate(page, pageItemCount)
-//            .map { it.toPost(localUserId) }
-
 
         val replyIds = RepliesDao.find { RepliesTable.postId.eq(postId) }
             .map { it.replyPostId }
@@ -418,4 +429,17 @@ fun SizedIterable<PostDao>.orderByDistance(userLatLng: LatLng): SizedIterable<Po
         PostsTable.geoLatitude.columnType
     )
     return orderBy(distanceOp to SortOrder.ASC)
+}
+
+
+fun Query.orderByDistance(userLatLng: LatLng) : Query {
+    val orderBy = DistanceOp(
+        PostsTable.geoLatitude,
+        PostsTable.geoLongitude,
+        userLatLng.latitude,
+        userLatLng.longitude,
+        PostsTable.geoLatitude.columnType
+    ) to SortOrder.ASC
+    (orderByExpressions as MutableList).add(orderBy)
+    return this
 }

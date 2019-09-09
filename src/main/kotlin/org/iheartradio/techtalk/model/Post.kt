@@ -23,7 +23,8 @@ data class Post(
     var quotedPost: Post? = null,
     val replyCount: Int,
     val authorizedUserExtras: PostExtras? = null,
-    val latLng: LatLng
+    val latLng: LatLng,
+    val distanceFromAuthorizedUser: Float? = null
 ) : EntityModel {
     companion object {
         infix fun from(jsonString: String): Post = Gson().fromJson(jsonString, Post::class.java)
