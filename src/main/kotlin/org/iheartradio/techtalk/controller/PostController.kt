@@ -2,11 +2,13 @@ package org.iheartradio.techtalk.controller
 
 import org.iheartradio.techtalk.domain.dao.PostDao
 import org.iheartradio.techtalk.domain.dao.toPost
+import org.iheartradio.techtalk.model.LatLng
 import org.iheartradio.techtalk.model.response.BaseResponse
 import org.iheartradio.techtalk.model.response.ResponseList
 import org.iheartradio.techtalk.model.response.ResponseObject
 import org.iheartradio.techtalk.service.PostService
 import org.iheartradio.techtalk.sparkutils.auth
+import org.iheartradio.techtalk.sparkutils.latLngModel
 import org.iheartradio.techtalk.sparkutils.postModel
 import org.iheartradio.techtalk.utils.APIException
 import org.iheartradio.techtalk.utils.ErrorType
@@ -102,9 +104,16 @@ object PostController {
     val feed = Route { request, response ->
         return@Route try {
             val authorizedUserId = request.auth().authorizedUserId ?: 0
+            val userLocation = request.latLngModel()
             println("DEBUG:: FETCHING FEED FOR USER $authorizedUserId")
             val page: Int = request.queryMap("page").integerValue() ?: 1
-            ResponseList(PostService.fetchFeed(authorizedUserId, page))
+            ResponseList(
+                PostService.fetchFeed(
+                    localUserId = authorizedUserId,
+                    localUserLocation = userLocation,
+                    page = page
+                )
+            )
         } catch (exception: APIException) {
             exception.toBaseResponse()
         }

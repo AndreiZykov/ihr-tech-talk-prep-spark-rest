@@ -1,3 +1,11 @@
 package org.iheartradio.techtalk
 
-inline class SQLStatement(val sql: String)
+import org.jetbrains.exposed.sql.transactions.transaction
+
+inline class SQLStatement(val sql: String) {
+    fun exec() {
+        transaction {
+            exec(sql)
+        }
+    }
+}

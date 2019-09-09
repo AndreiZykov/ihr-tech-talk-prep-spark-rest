@@ -2,10 +2,12 @@ package org.iheartradio.techtalk.service
 
 import org.iheartradio.techtalk.SQLStatement
 import org.iheartradio.techtalk.controller.deleteAll
+import org.iheartradio.techtalk.domain.DbFunctions
 import org.iheartradio.techtalk.domain.dao.*
 import org.iheartradio.techtalk.domain.entity.PostExtrasTable
 import org.iheartradio.techtalk.domain.entity.PostsTable
 import org.iheartradio.techtalk.domain.entity.RepliesTable
+import org.iheartradio.techtalk.model.DistanceUnits
 import org.iheartradio.techtalk.model.LatLng
 import org.iheartradio.techtalk.model.PostExtras
 import org.iheartradio.techtalk.model.Post
@@ -17,10 +19,8 @@ import org.iheartradio.techtalk.utils.extensions.paginate
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.joda.time.DateTime
-import kotlin.math.atan2
-import kotlin.math.cos
-import kotlin.math.sin
-import kotlin.math.sqrt
+import java.math.BigDecimal
+import kotlin.math.*
 
 object PostService {
 
@@ -315,12 +315,14 @@ object PostService {
 
     fun fetchFeed(
         localUserId: Long,
+        localUserLocation: LatLng,
         page: Int = 1,
         pageItemCount: Int = 10
     ) = transaction {
         println("DEBUG:: fetchFeed called for $localUserId")
+        //TODO: Change to pass user location over in request body
         PostDao.find { PostsTable.repliedPostId.isNull() }
-            .orderBy(PostsTable.date to SortOrder.DESC)
+            .orderByDistance(localUserLocation)
             .paginate(page, pageItemCount)
             .map { it.toPost(localUserId) }
     }
@@ -335,6 +337,10 @@ object PostService {
         println("DEBUG:: fetchFeed called for $localUserId")
 
 //        PostDao
+//        val num: Float = 10.toFloat()
+//        num.pow(7)
+
+
 //            .find {
 //            RepliesTable.replyPostId.eq(PostsTable.id) and  RepliesTable.postId.eq(postId)//PostsTable.id.eq(postId)
 //        }
@@ -357,13 +363,13 @@ object PostService {
 }
 
 
-object Calculator {
+object DistanceCalculator {
     private val earthRadius = 6371
     fun calculateDistance(lat1: Double, lon1: Double, lat2: Double, lon2: Double): Float {
         val dLat = Math.toRadians((lat2 - lat1))
         val dLon = Math.toRadians((lon2 - lon1))
         val a = (sin((dLat / 2)) * sin((dLat / 2)) + (cos(Math.toRadians(lat1))
-                    * cos(Math.toRadians(lat2)) * sin((dLon / 2)) * sin((dLon / 2)))).toFloat()
+                * cos(Math.toRadians(lat2)) * sin((dLon / 2)) * sin((dLon / 2)))).toFloat()
         val c = (2 * atan2(sqrt(a.toDouble()), sqrt((1 - a).toDouble()))).toFloat()
         return earthRadius * c
     }
@@ -372,4 +378,44 @@ object Calculator {
     fun calculateDistance(loc1: LatLng, loc2: LatLng): Float {
         return calculateDistance(loc1.latitude, loc1.longitude, loc2.latitude, loc2.longitude)
     }
+}
+
+
+//fun com(lat: Double, lng: Double) {
+//    return lat * 1e7 shl 16 and 0xffff0000 or (lng * 1e7) and 0x0000ffff
+//}
+
+//
+//class MinusOp<T, S: T>(val expr1: Expression<T>,
+//                       val expr2: Expression<S>,
+//                       override val columnType: IColumnType): ExpressionWithColumnType<T>() {
+//
+//    override fun toSQL(queryBuilder: QueryBuilder) = "${expr1.toSQL(queryBuilder)}-${expr2.toSQL(queryBuilder)}"
+//}
+
+
+/**
+ * https://www.geodatasource.com/developers/postgresql
+ */
+class DistanceOp<T, S : T>(
+    private val lat1: Expression<T>,
+    private val long1: Expression<S>,
+    private val lat2: Double,
+    private val long2: Double,
+    override val columnType: IColumnType,
+    private val distUnits: DistanceUnits = DistanceUnits.Kilometers
+) : ExpressionWithColumnType<T>() {
+    override fun toSQL(queryBuilder: QueryBuilder) =
+        "${DbFunctions.FUNCTION_CALC_DIST}(${lat1.toSQL(queryBuilder)},${long1.toSQL(queryBuilder)},$lat2,$long2,'$distUnits')"
+}
+
+fun SizedIterable<PostDao>.orderByDistance(userLatLng: LatLng): SizedIterable<PostDao> {
+    val distanceOp = DistanceOp(
+        PostsTable.geoLatitude,
+        PostsTable.geoLongitude,
+        userLatLng.latitude,
+        userLatLng.longitude,
+        PostsTable.geoLatitude.columnType
+    )
+    return orderBy(distanceOp to SortOrder.ASC)
 }

@@ -1,5 +1,6 @@
 package org.iheartradio.techtalk.domain
 
+import org.iheartradio.techtalk.SQLStatement
 import org.iheartradio.techtalk.domain.entity.*
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
@@ -10,6 +11,9 @@ val SALT = System.getenv("TT_SALT")
 
 object DB {
     fun init() {
+
+        val sql =  "HELLO WORLD RETURNS float AS \$dist$"
+        println(sql)
         val dbUrl = System.getenv("TT_DB_URL")
         val dbUserName = System.getenv("TT_DB_USER_NAME")
         val dbPassword = System.getenv("TT_DB_PASSWORD")
@@ -19,7 +23,12 @@ object DB {
 //            SchemaUtils.drop(*tables.reversedArray())
             SchemaUtils.createMissingTablesAndColumns(*tables)
         }
+
+        DbFunctions.createOrReplace()
     }
 
     private const val DB_DRIVER = "org.postgresql.Driver"
+
+
+
 }
