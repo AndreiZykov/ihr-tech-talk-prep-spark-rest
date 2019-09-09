@@ -5,6 +5,7 @@ import org.jetbrains.exposed.dao.LongIdTable
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.or
 import org.joda.time.DateTime
+import java.math.BigDecimal
 
 const val POST_MAX_CHARS = 500
 
@@ -23,11 +24,15 @@ object PostsTable : LongIdTable() {
     val repliedPostId = long("REPLIED_POST_ID").nullable()
 
     val geoLatitude = decimal(name = "GEO_LATITUDE",
-        precision = Int.MAX_VALUE,
-        scale = Int.MAX_VALUE)
+        precision = 20,
+        scale = 15)
+        .default(defaultValue = BigDecimal.ZERO)
 
     val geoLongitude = decimal(name = "GEO_LONGITUDE",
-        precision = Int.MAX_VALUE,
-        scale = Int.MAX_VALUE)
+        precision = 20,
+        scale = 15)
+        .default(defaultValue = BigDecimal.ZERO)
+
+
 }
 

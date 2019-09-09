@@ -1,19 +1,26 @@
 package org.iheartradio.techtalk.service
 
+import org.iheartradio.techtalk.SQLStatement
 import org.iheartradio.techtalk.controller.deleteAll
 import org.iheartradio.techtalk.domain.dao.*
 import org.iheartradio.techtalk.domain.entity.PostExtrasTable
 import org.iheartradio.techtalk.domain.entity.PostsTable
 import org.iheartradio.techtalk.domain.entity.RepliesTable
+import org.iheartradio.techtalk.model.LatLng
 import org.iheartradio.techtalk.model.PostExtras
 import org.iheartradio.techtalk.model.Post
 import org.iheartradio.techtalk.utils.APIException
 import org.iheartradio.techtalk.utils.ErrorType
 import org.iheartradio.techtalk.utils.apiException
+import org.iheartradio.techtalk.utils.extensions.execAndMap
 import org.iheartradio.techtalk.utils.extensions.paginate
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.joda.time.DateTime
+import kotlin.math.atan2
+import kotlin.math.cos
+import kotlin.math.sin
+import kotlin.math.sqrt
 
 object PostService {
 
@@ -30,7 +37,6 @@ object PostService {
             geoLongitude = post.latLng.longitude.toBigDecimal()
         }.toPost(localUser.id.value)
     }
-
 
 
 //    fun repost(post: Post, originalPostId: Long): Post = transaction {
@@ -76,12 +82,11 @@ object PostService {
 
     fun repost(localUserId: Long, originalPostId: Long): Post? = transaction {
         val localUser = UserDao.findById(localUserId) ?: throw APIException(ErrorType.USER_NOT_FOUND)
-        val originalPost: Post = PostDao.findById(originalPostId)?.toPost(localUser.id.value) ?: apiException(ErrorType.POST_NOT_FOUND)
+        val originalPost: Post =
+            PostDao.findById(originalPostId)?.toPost(localUser.id.value) ?: apiException(ErrorType.POST_NOT_FOUND)
 //        val alreadyReposted = PostDao.find {
 //            PostsTable.originalPostId.eq(originalPostId) and PostsTable.user.eq(localUserId)
 //        }.count() > 0
-
-
 
 
 //        val newPost = PostDao.new {
@@ -101,12 +106,12 @@ object PostService {
 //            PostExtrasDao.findById(extras.id)?.updateRepost()
 
             val updatedExtras = PostExtrasDao.findById(extras.id)?.apply {
-                repost = if(repost > 0) 0 else 1
+                repost = if (repost > 0) 0 else 1
             }
 
-            if(updatedExtras?.repost == 1) {
+            if (updatedExtras?.repost == 1) {
                 //insert new post with original post details
-                newPost  = PostDao.new {
+                newPost = PostDao.new {
                     user = localUser
                     body = originalPost.body
                     date = DateTime()
@@ -117,7 +122,7 @@ object PostService {
             } else {
                 //delete the re-posted post
                 PostDao
-                    .find { PostsTable.originalPostId.eq(originalPost.id) and  PostsTable.user.eq(localUser.id) }
+                    .find { PostsTable.originalPostId.eq(originalPost.id) and PostsTable.user.eq(localUser.id) }
                     .deleteAll()
 //                    .firstOrNull()
 //                    ?.delete()
@@ -150,7 +155,8 @@ object PostService {
 
     fun quote(post: Post, quotedPostId: Long): Post = transaction {
         val localUser = UserDao.findById(post.userId) ?: throw APIException(ErrorType.USER_NOT_FOUND)
-        val quotedPost: Post = PostDao.findById(quotedPostId)?.toPost(localUser.id.value) ?: apiException(ErrorType.POST_NOT_FOUND)
+        val quotedPost: Post =
+            PostDao.findById(quotedPostId)?.toPost(localUser.id.value) ?: apiException(ErrorType.POST_NOT_FOUND)
         PostDao.new {
             user = localUser
             body = post.body
@@ -228,8 +234,7 @@ object PostService {
 //    }
 
 
-
-    fun like(userId: Long, postId: Long): Post =  transaction {
+    fun like(userId: Long, postId: Long): Post = transaction {
 
         val post = PostDao.findById(postId) ?: apiException(ErrorType.POST_NOT_FOUND)
 
@@ -308,9 +313,11 @@ object PostService {
     }
 
 
-    fun fetchFeed(localUserId: Long,
-                  page : Int = 1,
-                  pageItemCount: Int = 10) = transaction {
+    fun fetchFeed(
+        localUserId: Long,
+        page: Int = 1,
+        pageItemCount: Int = 10
+    ) = transaction {
         println("DEBUG:: fetchFeed called for $localUserId")
         PostDao.find { PostsTable.repliedPostId.isNull() }
             .orderBy(PostsTable.date to SortOrder.DESC)
@@ -319,12 +326,12 @@ object PostService {
     }
 
 
-
-
-    fun fetchReplies(localUserId: Long,
-                     postId: Long,
-                     page : Int = 1,
-                     pageItemCount: Int = 10) = transaction {
+    fun fetchReplies(
+        localUserId: Long,
+        postId: Long,
+        page: Int = 1,
+        pageItemCount: Int = 10
+    ) = transaction {
         println("DEBUG:: fetchFeed called for $localUserId")
 
 //        PostDao
@@ -336,10 +343,7 @@ object PostService {
 //            .map { it.toPost(localUserId) }
 
 
-
-
-        val replyIds = RepliesDao.
-            find { RepliesTable.postId.eq(postId) }
+        val replyIds = RepliesDao.find { RepliesTable.postId.eq(postId) }
             .map { it.replyPostId }
             .toList()
 
@@ -349,5 +353,23 @@ object PostService {
             .map { it.toPost(localUserId) }
 
 
+    }
+}
+
+
+object Calculator {
+    private val earthRadius = 6371
+    fun calculateDistance(lat1: Double, lon1: Double, lat2: Double, lon2: Double): Float {
+        val dLat = Math.toRadians((lat2 - lat1))
+        val dLon = Math.toRadians((lon2 - lon1))
+        val a = (sin((dLat / 2)) * sin((dLat / 2)) + (cos(Math.toRadians(lat1))
+                    * cos(Math.toRadians(lat2)) * sin((dLon / 2)) * sin((dLon / 2)))).toFloat()
+        val c = (2 * atan2(sqrt(a.toDouble()), sqrt((1 - a).toDouble()))).toFloat()
+        return earthRadius * c
+    }
+
+
+    fun calculateDistance(loc1: LatLng, loc2: LatLng): Float {
+        return calculateDistance(loc1.latitude, loc1.longitude, loc2.latitude, loc2.longitude)
     }
 }
