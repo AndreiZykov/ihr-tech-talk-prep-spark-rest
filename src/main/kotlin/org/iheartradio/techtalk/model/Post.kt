@@ -2,6 +2,7 @@ package org.iheartradio.techtalk.model
 
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
+import org.iheartradio.techtalk.service.DistanceCalculator
 import org.joda.time.DateTime
 
 enum class LikeDislikeStatus {
@@ -28,5 +29,17 @@ data class Post(
 ) : EntityModel {
     companion object {
         infix fun from(jsonString: String): Post = Gson().fromJson(jsonString, Post::class.java)
+    }
+}
+
+
+class PostComparator: Comparator<Post> {
+    override fun compare(p1: Post, p2: Post): Int {
+        val dist = DistanceCalculator.calculateDistance(p1.latLng, p2.latLng)
+        return when {
+            dist > 0 -> 1
+            dist < 0 -> -1
+            else -> 0
+        }
     }
 }

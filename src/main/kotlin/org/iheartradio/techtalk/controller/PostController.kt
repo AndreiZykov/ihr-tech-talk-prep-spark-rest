@@ -1,10 +1,16 @@
 package org.iheartradio.techtalk.controller
 
 import org.iheartradio.techtalk.domain.dao.PostDao
+import org.iheartradio.techtalk.domain.dao.UserDao
 import org.iheartradio.techtalk.domain.dao.toPost
+import org.iheartradio.techtalk.domain.entity.PostsTable
+import org.iheartradio.techtalk.model.FetchByLocation
+import org.iheartradio.techtalk.model.LatLng
+import org.iheartradio.techtalk.model.Post
 import org.iheartradio.techtalk.model.response.BaseResponse
 import org.iheartradio.techtalk.model.response.ResponseList
 import org.iheartradio.techtalk.model.response.ResponseObject
+import org.iheartradio.techtalk.model.response.SuccessResponse
 import org.iheartradio.techtalk.service.PostService
 import org.iheartradio.techtalk.sparkutils.auth
 import org.iheartradio.techtalk.sparkutils.fetchByLocationBody
@@ -13,6 +19,7 @@ import org.iheartradio.techtalk.utils.APIException
 import org.iheartradio.techtalk.utils.ErrorType
 import org.iheartradio.techtalk.utils.extensions.toJson
 import org.iheartradio.techtalk.utils.toBaseResponse
+import org.jetbrains.exposed.sql.batchInsert
 import org.jetbrains.exposed.sql.transactions.transaction
 import spark.Route
 
@@ -101,16 +108,30 @@ object PostController {
     val feed = Route { request, _ ->
         return@Route try {
             val authorizedUserId = request.auth().authorizedUserId ?: 0
-            val locationFetchBody = request.fetchByLocationBody()
-            println("DEBUG:: FETCHING FEED FOR USER $authorizedUserId, locationFetchBody= $locationFetchBody")
+//            val locationFetchBody = request.fetchByLocationBody()
+            val userLatitude = request.queryMap("latitude").doubleValue()
+            val userLongitude = request.queryMap("longitude").doubleValue()
+            val radius = request.queryMap("radius").doubleValue()
+            val fetchByLocation = FetchByLocation(userLatitude, userLongitude, radius)
+            println("DEBUG:: FETCHING FEED FOR USER $authorizedUserId, fetchByLocationParams= $fetchByLocation")
             val page: Int = request.queryMap("page").integerValue() ?: 1
             ResponseList(
                 PostService.fetchFeed(
                     localUserId = authorizedUserId,
-                    fetchByLocationParams = locationFetchBody,
+                    fetchByLocationParams = fetchByLocation,
                     page = page
                 )
             )
+        } catch (exception: APIException) {
+            exception.toBaseResponse()
+        }
+    }
+
+
+    val batchInsertPostTestData = Route { request, _ ->
+        return@Route try {
+            PostService.batchInsertTestData()
+            SuccessResponse()
         } catch (exception: APIException) {
             exception.toBaseResponse()
         }

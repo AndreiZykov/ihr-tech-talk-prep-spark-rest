@@ -32,6 +32,8 @@ fun main(args: Array<String>) {
 
     println("CURRENT DATE IN MILLS = ${DateTime().millis}")
 
+    println("herokuPort = $herokuPort")
+
     port(herokuPort)
 
     DB.init()
@@ -44,6 +46,7 @@ fun main(args: Array<String>) {
 
     path(USER_PATH) {
         get(UserController.selectAll)
+        get("/:id",UserController.selectById)
         post(UserController.insertInto)
         patch(UserController.update)
         delete(UserController.delete)
@@ -61,6 +64,9 @@ fun main(args: Array<String>) {
         post("/:id/$REPOST", PostController.repost)
         post("/:id/$QUOTE", PostController.quote)
         get("/:id/$REPLIES", PostController.replies)
+
+
+        post("/batchInsert",PostController.batchInsertPostTestData)
     }
 
 

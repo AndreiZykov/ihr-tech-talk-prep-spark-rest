@@ -14,11 +14,17 @@ import org.iheartradio.techtalk.utils.apiException
 import org.iheartradio.techtalk.utils.extensions.execAndMap
 import org.iheartradio.techtalk.utils.extensions.paginate
 import org.jetbrains.exposed.sql.*
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.lessEq
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.joda.time.DateTime
 import java.math.BigDecimal
-import kotlin.math.*
+import kotlin.math.atan2
+import kotlin.math.cos
+import kotlin.math.sin
+import kotlin.math.sqrt
+import kotlin.random.Random
+
+
+fun <T> T.toLazy() = lazy { this }
 
 object PostService {
 
@@ -31,8 +37,11 @@ object PostService {
             likesRating = 0
             repostCount = 0
             originalPostId = post.originalPost?.id
-            geoLatitude = post.latLng.latitude.toBigDecimal()
-            geoLongitude = post.latLng.longitude.toBigDecimal()
+//            geoLatitude = post.latLng.latitude.toBigDecimal()
+//            geoLongitude = post.latLng.longitude.toBigDecimal()
+//            geoLatitude = post.latLng.latitude.toLazy()
+//            geoLongitude = post.latLng.longitude.toLazy()
+            geoTag = "${post.latLng.latitude},${post.latLng.longitude}"
         }.toPost(localUser.id.value)
     }
 
@@ -322,8 +331,10 @@ object PostService {
 //        PostDao.find{ PostsTable.repliedPostId.isNull()  }
 //            .orderBy(PostsTable.date to SortOrder.DESC)
 //            .paginate(page, pageItemCount)
-//            .map { it.toPost(localUserId, localUserLocation) }
+//            .map { it.toPost(localUserId) }
 
+
+        /*
         val localUserLocation = LatLng(fetchByLocationParams.latitude, fetchByLocationParams.longitude)
 
         val distanceOp = DistanceOp(
@@ -334,13 +345,195 @@ object PostService {
             PostsTable.geoLatitude.columnType
         )
         val radius = BigDecimal(fetchByLocationParams.radius)
+//
 
-        //Return all posts that ARE NOT Replies and Distance from user LessThan
+
+//        //Return all posts that ARE NOT Replies and Distance from user LessThan
         PostDao.find { PostsTable.repliedPostId.isNull() and distanceOp.lessEq(radius) }
-            .orderPosts(distanceOp)
+//        PostDao.find { PostsTable.repliedPostId.isNull()}
+//            .orderPosts(distanceOp)
             .paginate(page, pageItemCount)
             .map { it.toPost(localUserId, localUserLocation) }
 
+
+         */
+
+
+//        SQLStatement("select p.id, p.user as user_id,\n" +
+//                "p.geo_latitude, \n" +
+//                "p.geo_longitude,\n" +
+//                "calculate_distance(p.geo_latitude,p.geo_longitude,40.25177,-74.400009,'N') as dist\n" +
+//                "from posts p\n" +
+//                "order by dist asc\n" +
+//                "limit 20;\n").execAndMap {
+//            Post(id = it.getLong("id"),
+//                userId = it.getLong("user_id"),
+//                userName = "",
+//                body = "",
+//                replyCount = 0,
+//                latLng = LatLng(it.getBigDecimal("geo_latitude").toDouble(), it.getBigDecimal("geo_longitude").toDouble()))
+//        }
+
+
+        val localUserLocation = LatLng(fetchByLocationParams.latitude, fetchByLocationParams.longitude)
+
+        val radius = fetchByLocationParams.radius
+        val latitude = localUserLocation.latitude
+        val longitude = localUserLocation.longitude
+
+
+        /*
+
+        val earth = 6378.137  //radius of the earth in kilometer
+        val pi = Math.PI
+//        val m = (1 / ((2 * pi / 360) * earth)) / 1000;  //1 meter in degree
+        val km = (1 / ((2 * pi / 360) * earth)) ;  //1 kilometer in degree
+        val right = latitude + (radius * km) //going right
+        val left = latitude - (radius * km) //going left
+
+        val bottom = longitude + (radius * km) / cos(latitude * (pi / 180))
+        val top = longitude - (radius * km) / cos(latitude * (pi / 180))
+
+        */
+
+
+//        val earth = 6371
+////        val left = longitude + Math.toDegrees(radius / earth / cos(Math.toRadians(latitude)))
+////        val right = longitude - Math.toDegrees(radius / earth / cos(Math.toRadians(latitude)))
+////        val bottom = latitude + Math.toDegrees(radius / earth)
+////        val top = latitude - Math.toDegrees(radius / earth)
+//
+//
+//        val left = latitude - Math.toDegrees(radius / earth / cos(Math.toRadians(latitude)))
+//        val right = latitude + Math.toDegrees(radius / earth / cos(Math.toRadians(latitude)))
+//        val bottom = longitude + Math.toDegrees(radius / earth)
+//        val top = longitude - Math.toDegrees(radius / earth)
+//
+//        /*
+//        double R = 6371;  // earth radius in km
+//
+//double radius = 50; // km
+//
+//double x1 = lon - Math.toDegrees(radius/R/Math.cos(Math.toRadians(lat)));
+//
+//double x2 = lon + Math.toDegrees(radius/R/Math.cos(Math.toRadians(lat)));
+//
+//double y1 = lat + Math.toDegrees(radius/R);
+//
+//double y2 = lat - Math.toDegrees(radius/R);
+//         */
+//
+//        val leftBounds: Op<Boolean> = PostsTable.geoLatitude greaterEq left.toBigDecimal()
+//        val rightBounds: Op<Boolean> = PostsTable.geoLatitude lessEq right.toBigDecimal()
+//        val topBounds: Op<Boolean> = PostsTable.geoLongitude greaterEq top.toBigDecimal()
+//        val bottomBounds: Op<Boolean> = PostsTable.geoLongitude lessEq bottom.toBigDecimal()
+////
+//        println("left = $left")
+//        println("right = $right")
+//        println("top = $top")
+//        println("bottom = $bottom")
+//
+//        val distanceOp = DistanceOp(
+//            PostsTable.geoLatitude,
+//            PostsTable.geoLongitude,
+//            localUserLocation.latitude,
+//            localUserLocation.longitude,
+//            PostsTable.geoLatitude.columnType
+//        )
+
+//
+//        var whereClause: Op<Boolean>
+//
+//        val whereClause1 =
+//            PostsTable.repliedPostId.isNull() and leftBounds and rightBounds and topBounds and bottomBounds
+//
+//
+//        val whereClause2 = PostsTable.repliedPostId.isNull() and distanceOp.lessEq(radius.toBigDecimal())
+//
+//
+//        whereClause = whereClause1
+
+//        println("WHERE CLAUSE: $whereClause")
+//        PostDao.find { whereClause }
+//            .orderBy(PostsTable.date to SortOrder.DESC)
+//            .paginate(page, pageItemCount)
+//            .map { it.toPost(localUserId, localUserLocation) }
+//            .sortedWith(PostComparator())
+
+
+        //SizedCollection(delegate.drop(offset).take(n))
+
+//        PostDao.find { whereClause }
+////            .orderBy(PostsTable.date to SortOrder.DESC)
+////            .orderByDistance(localUserLocation)
+////            .paginate(page, pageItemCount)
+//            .map { it.toPost(localUserId, localUserLocation) }
+//            .filter {
+//                DistanceCalculator.calculateDistance(it.latLng, localUserLocation) <= radius
+//            }
+//            .take(5)
+
+
+//        PostDao.all()
+//            .map { it.toPost(localUserId, localUserLocation) }
+//            .filter { DistanceCalculator.calculateDistance(it.latLng, localUserLocation) <= radius }
+
+
+
+        /*
+        "SELECT * FROM POSTS p\n" +
+                "WHERE p.geo_latitude > (41.25177-2)\n" +
+                "AND p.geo_latitude < (41.25177+2)\n" +
+                "AND p.geo_longitude > (-74.400010-2)\n" +
+                "AND p.geo_longitude < (-74.400010+2)\n" +
+                "GROUP BY p.id, p.user, p.body, p.date, p.likes_rating, p.repost_count, p.reply_count,\n" +
+                "p.original_post_id, p.quoted_post_id, p.replied_post_id, p.geo_latitude, p.geo_longitude,\n" +
+                "p.location\n" +
+                "HAVING calculate_distance(p.geo_latitude,p.geo_longitude,40.25177,-74.400009,'K') <= 200\n" +
+                "LIMIT $n OFFSET $offset\n" +
+                ";"
+         */
+
+
+        exec("DROP TABLE IF EXISTS temp_table;\n" +
+                "CREATE TEMP TABLE IF NOT EXISTS temp_table AS\n" +
+                "SELECT *, calculate_distance(p.geo_latitude,p.geo_longitude,40.25177,-74.400009,'K') as dist\n" +
+                "FROM POSTS p\n" +
+                "WHERE p.geo_latitude > (41.25177-2)\n" +
+                "AND p.geo_latitude < (41.25177+2)\n" +
+                "AND p.geo_longitude > (-74.400010-2)\n" +
+                "AND p.geo_longitude < (-74.400010+2)\n" +
+                ";")
+
+        val n = pageItemCount
+        val offset = ((page - 1) * pageItemCount)
+        SQLStatement("SELECT * FROM temp_table p WHERE p.dist <= $radius\n" +
+                "GROUP BY p.id, p.user, p.body, p.date, p.likes_rating, p.repost_count, p.reply_count,\n" +
+                "p.original_post_id, p.quoted_post_id, p.replied_post_id, p.geo_latitude, p.geo_longitude,\n" +
+                "p.location, p.dist\n" +
+                "ORDER BY p.dist\n" +
+                "LIMIT $n OFFSET $offset\n" +
+                ";").execAndMap {
+            val loc = it.getString("location")
+            val latLng = LatLng(
+                loc.split(",").first().toDouble(),
+                loc.split(",").last().toDouble()
+            )
+
+//            val latLng = LatLng(0.0,0.0)
+            Post(
+                id = it.getLong("id"),
+                userId = it.getLong("user"),
+                userName = "",
+                date = it.getDate("date").time,
+                replyCount = 0,
+                latLng = latLng,
+                body = it.getString("body"),
+                distanceFromAuthorizedUser = it.getFloat("dist")
+            )
+        }.toList()
+
+//            .sortedWith(PostComparator())
     }
 
 
@@ -363,11 +556,65 @@ object PostService {
 
 
     }
+
+
+    fun batchInsertTestData() = transaction {
+
+        val brooklyn = LatLng(40.6501, -73.94958)
+        val toronto = LatLng(43.70011, -79.4163)
+        val newark = LatLng(40.735657, -74.1723667)
+        val cherryHill = LatLng(39.909939, -75.005991)
+        val freehold = LatLng(40.260641, -74.275601)
+        val greenwhich = LatLng(40.715149, -74.011151)
+        val madison = LatLng(40.711569, -74.001752)
+
+        val posts = mutableListOf<Post>()
+        for (i in 1..100000) {
+
+            val nextInt = Random.nextInt(1, 6)
+            println("random location = $nextInt")
+            val location = when (nextInt) {
+                1 -> brooklyn
+                2 -> toronto
+                3 -> cherryHill
+                4 -> freehold
+                5 -> greenwhich
+                6 -> newark
+                else -> madison
+            }
+
+            posts.add(
+                Post(
+                    userId = 1,
+                    userName = "Anthony",
+                    body = "HELLO WORLD post #$i",
+                    replyCount = 0,
+                    latLng = location
+                )
+            )
+        }
+
+        PostsTable.batchInsert(posts) { post ->
+            this[PostsTable.user] = UserDao.findById(post.userId)!!.id
+            this[PostsTable.body] = post.body
+            this[PostsTable.replyCount] = 0
+//            this[PostsTable.geoLatitude] = post.latLng.latitude.toBigDecimal()
+//            this[PostsTable.geoLongitude] = post.latLng.longitude.toBigDecimal()
+
+            val latitude = post.latLng.latitude.toBigDecimal()
+            val longitude = post.latLng.longitude.toBigDecimal()
+
+            this[PostsTable.geoLatitude] = latitude
+            this[PostsTable.geoLongitude] = longitude
+            this[PostsTable.geoTag] = "$latitude,$longitude"
+
+        }
+    }
 }
 
 
 object DistanceCalculator {
-    private val earthRadius = 6371
+    private val earthRadius = 6378.137.toFloat() //6371
     fun calculateDistance(lat1: Double, lon1: Double, lat2: Double, lon2: Double): Float {
         val dLat = Math.toRadians((lat2 - lat1))
         val dLon = Math.toRadians((lon2 - lon1))

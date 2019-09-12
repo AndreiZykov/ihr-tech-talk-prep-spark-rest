@@ -2,20 +2,29 @@ package org.iheartradio.techtalk.service
 
 import com.amdelamar.jhash.Hash
 import com.amdelamar.jhash.algorithms.Type
+import kotlinx.nosql.*
+import org.bson.types.ObjectId
 import org.iheartradio.techtalk.utils.Encryptor
 import org.iheartradio.techtalk.controller.deleteAll
+import org.iheartradio.techtalk.domain.DB
 import org.iheartradio.techtalk.domain.SALT
 import org.iheartradio.techtalk.domain.dao.UserDao
 import org.iheartradio.techtalk.domain.dao.toUser
 import org.iheartradio.techtalk.domain.dao.toUserWithJwt
+import org.iheartradio.techtalk.domain.entity.Users
 import org.iheartradio.techtalk.domain.entity.UsersTable
+import org.iheartradio.techtalk.domain.withMongoDbSession
 import org.iheartradio.techtalk.model.User
 import org.iheartradio.techtalk.utils.APIException
 import org.iheartradio.techtalk.utils.ErrorType.*
 import org.iheartradio.techtalk.utils.apiException
+import org.iheartradio.techtalk.utils.toBaseResponse
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.joda.time.DateTime
+
+
+
 
 object UserService {
 
@@ -23,8 +32,10 @@ object UserService {
         UserDao.all().map { it.toUser() }
     }
 
+    fun selectById(id: Long): User? = transaction { UserDao.findById(id) }?.toUser()
+
     fun delete(user: User) {
-        transaction { UserDao.findById(user.id)?.delete() }
+        transaction { UserDao.findById(user.idLong)?.delete() }
     }
 
     fun deleteAll() {
@@ -51,7 +62,7 @@ object UserService {
     }
 
     fun update(user: User): User = transaction {
-        val localUser = UserDao.findById(user.id) ?: apiException(USER_NOT_FOUND)
+        val localUser = UserDao.findById(user.idLong) ?: apiException(USER_NOT_FOUND)
         localUser.apply {
             // TODO: add some fields
         }.toUser()
